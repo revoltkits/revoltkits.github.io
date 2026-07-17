@@ -31,20 +31,6 @@
     overflow-x: hidden;
   }
   body.locked { overflow: hidden; height: 100svh; }
-  @media (pointer: fine) { body, a, button, label { cursor: none; } }
-
-  /* ── CURSOR CUSTOM ───────────────────────── */
-  .cur-dot, .cur-ring {
-    position: fixed; top: 0; left: 0; pointer-events: none;
-    border-radius: 50%; z-index: 9500; transform: translate(-50%,-50%);
-  }
-  .cur-dot  { width: 6px; height: 6px; background: var(--amber); }
-  .cur-ring {
-    width: 36px; height: 36px; border: 1px solid rgba(156,195,240,.5);
-    transition: width .25s ease, height .25s ease, background .25s ease, border-color .25s;
-  }
-  .cur-ring.big { width: 72px; height: 72px; background: rgba(62,123,214,.14); border-color: rgba(156,195,240,.9); }
-  @media (pointer: coarse), (hover: none) { .cur-dot, .cur-ring { display: none; } }
 
   /* ── WORDMARK ────────────────────────────── */
   .wordmark {
@@ -162,20 +148,12 @@
   body:not(.home) #view-home { display: none; }
   body.home #view-main { display: none; }
 
-  /* fondo animado (sustituto autocontenido del video) */
-  .blob {
-    position: absolute; border-radius: 50%; filter: blur(70px);
-    opacity: .55; will-change: transform;
+  /* video de fondo (como eleven) */
+  #hero-video {
+    position: absolute; inset: -3%; width: 106%; height: 106%; object-fit: cover;
+    will-change: transform;
   }
-  .blob.b1 { width: 620px; height: 620px; background: radial-gradient(circle, #3E7BD6 0%, transparent 68%); top: -12%; left: -8%;  animation: drift1 17s ease-in-out infinite alternate; }
-  .blob.b2 { width: 520px; height: 520px; background: radial-gradient(circle, #1F3F66 0%, transparent 70%); bottom: -14%; right: -6%; animation: drift2 21s ease-in-out infinite alternate; opacity: .9; }
-  .blob.b3 { width: 340px; height: 340px; background: radial-gradient(circle, #E8960C 0%, transparent 70%); bottom: 6%; left: 16%;  animation: drift3 14s ease-in-out infinite alternate; opacity: .22; }
-  .blob.b4 { width: 300px; height: 300px; background: radial-gradient(circle, #9CC3F0 0%, transparent 70%); top: 12%; right: 14%;   animation: drift1 19s ease-in-out infinite alternate-reverse; opacity: .25; }
-  @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(90px,60px) scale(1.15); } }
-  @keyframes drift2 { from { transform: translate(0,0) scale(1.1); } to { transform: translate(-70px,-80px) scale(.95); } }
-  @keyframes drift3 { from { transform: translate(0,0); } to { transform: translate(60px,-70px) scale(1.2); } }
-
-  #hero-over { position: absolute; inset: 0; background: rgba(10,19,33,.30); }
+  #hero-over { position: absolute; inset: 0; background: rgba(10,19,33,.42); }
 
   /* grano de película */
   .grain {
@@ -584,10 +562,6 @@
 </head>
 <body class="home locked">
 
-<!-- ── CURSOR ──────────────────────────────── -->
-<div class="cur-ring" id="curRing"></div>
-<div class="cur-dot"  id="curDot"></div>
-
 <!-- ── LOADER ──────────────────────────────── -->
 <div id="loader">
   <div class="curt curt-top"></div>
@@ -632,10 +606,9 @@
 
 <!-- ══════════════ VISTA HOME ══════════════ -->
 <div id="view-home">
-  <div class="blob b1"></div>
-  <div class="blob b2"></div>
-  <div class="blob b3"></div>
-  <div class="blob b4"></div>
+  <video id="hero-video" autoplay muted loop playsinline preload="auto">
+    <source src="video/hero.mp4" type="video/mp4">
+  </video>
   <div id="hero-over"></div>
   <div class="grain"></div>
 
@@ -1217,7 +1190,6 @@ function renderSelector() {
     if (lastOpt) selScores = selScores.map((s,i) => s - lastOpt.pts[i]);
     renderSelector();
   });
-  hookCursor();
 }
 
 function renderResult() {
@@ -1245,7 +1217,6 @@ function renderResult() {
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
   document.getElementById('selRetry').addEventListener('click', resetSelector);
-  hookCursor();
 }
 function resetSelector() {
   selStep = 0; selScores = [0,0,0]; selReasons = [];
@@ -1341,41 +1312,22 @@ sh.innerHTML = sh.textContent.trim().split('').map((c, i) =>
             : `<span class="ch" style="transition-delay:${i * 40}ms">${c}</span>`
 ).join('');
 
-/* ═══════════ CURSOR CUSTOM ═══════════ */
-const dot = document.getElementById('curDot');
-const ring = document.getElementById('curRing');
-let mx = -100, my = -100, rx = -100, ry = -100;
-document.addEventListener('mousemove', e => {
-  mx = e.clientX; my = e.clientY;
-  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-});
-(function follow() {
-  rx += (mx - rx) * .16; ry += (my - ry) * .16;
-  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
-  requestAnimationFrame(follow);
-})();
-function hookCursor() {
-  document.querySelectorAll('a, button, label, .kcard').forEach(el => {
-    if (el.dataset.curHooked) return;
-    el.dataset.curHooked = '1';
-    el.addEventListener('mouseenter', () => ring.classList.add('big'));
-    el.addEventListener('mouseleave', () => ring.classList.remove('big'));
-  });
-}
-
-/* ═══════════ PARALLAX BLOBS ═══════════ */
+/* ═══════════ VIDEO HERO: parallax + autoplay ═══════════ */
+const hv = document.getElementById('hero-video');
 if (matchMedia('(pointer: fine)').matches) {
   document.addEventListener('mousemove', e => {
     if (!document.body.classList.contains('home')) return;
     const dx = (e.clientX / innerWidth  - .5) * 18;
     const dy = (e.clientY / innerHeight - .5) * 18;
-    document.querySelectorAll('.blob').forEach((b, i) => {
-      const f = (i % 2 ? -1 : 1) * (1 + i * .3);
-      b.style.marginLeft = (dx * f) + 'px';
-      b.style.marginTop  = (dy * f) + 'px';
-    });
+    hv.style.transform = `translate(${dx}px, ${dy}px)`;
   });
 }
+const tryPlay = () => hv.play().catch(() => {});
+tryPlay();
+window.addEventListener('load', tryPlay);
+['touchstart','click'].forEach(ev =>
+  document.addEventListener(ev, tryPlay, { once: true, passive: true })
+);
 
 /* ═══════════ SCROLL REVEAL ═══════════ */
 const observer = new IntersectionObserver(entries => {
@@ -1402,7 +1354,6 @@ document.addEventListener('click', e => {
 /* ═══════════ LOADER + INIT ═══════════ */
 renderKits();
 renderSelector();
-hookCursor();
 
 window.addEventListener('load', () => {
   setTimeout(() => {
