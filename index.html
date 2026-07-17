@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReVolt — Kits digitales educativos reacondicionados</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:     #101f33;   /* navy profundo (base #1F3F66 oscurecido) */
+    --bg2:    #16283f;
+    --bg3:    #1F3F66;   /* azul corporativo */
+    --line:   #2a4569;
+    --blue:   #3E7BD6;
+    --sky:    #9CC3F0;
+    --amber:  #E8960C;
+    --paper:  #F4F7FB;
+    --white:  #ffffff;
+    --gray:   #7d94b5;
+    --nav-h:  64px;
+    --disp: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', 'Arial Black', sans-serif;
+    --round: 'Arial Rounded MT Bold', 'Baloo 2', 'Verdana Pro Black', -apple-system, sans-serif;
+    --body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--white);
+    font-family: var(--body); font-size: 15px; line-height: 1.6;
+    overflow-x: hidden;
+  }
+  body.locked { overflow: hidden; height: 100svh; }
+  @media (pointer: fine) { body, a, button, label { cursor: none; } }
+
+  /* ── CURSOR CUSTOM ───────────────────────── */
+  .cur-dot, .cur-ring {
+    position: fixed; top: 0; left: 0; pointer-events: none;
+    border-radius: 50%; z-index: 9500; transform: translate(-50%,-50%);
+  }
+  .cur-dot  { width: 6px; height: 6px; background: var(--amber); }
+  .cur-ring {
+    width: 36px; height: 36px; border: 1px solid rgba(156,195,240,.5);
+    transition: width .25s ease, height .25s ease, background .25s ease, border-color .25s;
+  }
+  .cur-ring.big { width: 72px; height: 72px; background: rgba(62,123,214,.14); border-color: rgba(156,195,240,.9); }
+  @media (pointer: coarse), (hover: none) { .cur-dot, .cur-ring { display: none; } }
+
+  /* ── WORDMARK ────────────────────────────── */
+  .wordmark {
+    font-family: var(--round); font-weight: 800;
+    text-transform: lowercase; letter-spacing: -0.02em;
+    transform: skewX(-8deg); display: inline-block;
+    color: var(--white); text-decoration: none;
+  }
+  .wordmark .star { display: inline-block; transform: scale(.82); color: var(--amber); }
+
+  /* ── LOADER CORTINA ──────────────────────── */
+  #loader { position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
+  .curt {
+    position: absolute; left: 0; right: 0; height: 50.5%;
+    background: var(--bg); transition: transform .9s cubic-bezier(.77,0,.175,1);
+  }
+  .curt-top    { top: 0; }
+  .curt-bottom { bottom: 0; }
+  #loader.out .curt-top    { transform: translateY(-101%); }
+  #loader.out .curt-bottom { transform: translateY(101%); }
+  #loader-mark {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    font-size: clamp(40px, 9vw, 64px); color: #46648f;
+    transition: opacity .4s ease;
+    animation: markpulse 1.2s ease-in-out infinite;
+  }
+  #loader.out #loader-mark { opacity: 0; animation: none; }
+  @keyframes markpulse { 0%,100%{opacity:.35} 50%{opacity:1} }
+
+  /* ── TRANSICION (WIPE) ───────────────────── */
+  #wipe {
+    position: fixed; inset: 0; background: var(--bg); z-index: 9800;
+    transform: scaleY(0); transform-origin: bottom; pointer-events: none;
+    transition: transform .5s cubic-bezier(.77,0,.175,1);
+  }
+  #wipe.on { transform: scaleY(1); }
+
+  /* ── NAVBAR ─────────────────────────────── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; z-index: 950;
+    transition: background .3s, backdrop-filter .3s;
+  }
+  nav.scrolled { background: rgba(16,31,51,.88); backdrop-filter: blur(14px); }
+  .nav-logo { position: absolute; left: 50%; transform: translateX(-50%) skewX(-8deg); font-size: 26px; }
+  @media (min-width: 900px) {
+    nav { padding: 0 44px; height: 80px; }
+    body.home nav .nav-logo { position: static; transform: skewX(-8deg); font-size: 30px; }
+    body.home nav .burger { display: none !important; }
+  }
+
+  .bag {
+    font-family: var(--disp); font-size: 16px; letter-spacing: .06em;
+    color: var(--white); text-decoration: none; position: relative;
+    background: none; border: none;
+  }
+  .bag sup { font-size: 10px; position: relative; top: -7px; left: 2px; color: var(--amber); }
+
+  .burger {
+    background: none; border: none; cursor: pointer;
+    display: flex; flex-direction: column; gap: 5px; padding: 6px; z-index: 1001;
+  }
+  .burger span { display: block; width: 24px; height: 2px; background: var(--white); transition: .3s ease; }
+  .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+  .burger.open span:nth-child(2) { opacity: 0; }
+  .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+
+  /* ── MENU FULLSCREEN ─────────────────────── */
+  #mmenu {
+    position: fixed; inset: 0; background: var(--bg); z-index: 900;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 26px;
+    transform: translateX(-100%);
+    transition: transform .42s cubic-bezier(.77,0,.175,1);
+  }
+  #mmenu.open { transform: translateX(0); }
+  .mlink {
+    font-family: var(--disp);
+    font-size: clamp(30px, 8vw, 50px);
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--white); text-decoration: none; transition: opacity .2s;
+    background: none; border: none;
+  }
+  .mlink:hover { opacity: .4; }
+  .msocial { display: flex; gap: 24px; margin-top: 10px; }
+  .msocial a { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gray); text-decoration: none; }
+  .msocial a:hover { color: var(--white); }
+
+  /* ── LINKS LATERALES (desktop, home) ─────── */
+  .side-links {
+    display: none;
+    position: fixed; left: 44px; bottom: 56px; z-index: 700;
+    flex-direction: column; gap: 10px;
+  }
+  body.home.ready .side-links { display: flex; }
+  @media (max-width: 899px) { body.home.ready .side-links { display: none; } }
+  .side-links a {
+    font-family: var(--disp); font-size: 20px;
+    letter-spacing: .05em; text-transform: uppercase;
+    color: var(--white); text-decoration: none;
+    width: fit-content; transition: opacity .2s, transform .25s ease;
+    opacity: 0; transform: translateY(16px);
+  }
+  body.ready .side-links a { opacity: 1; transform: translateY(0); }
+  .side-links a:hover { opacity: .5 !important; transform: translateX(6px); }
+
+  /* ── HOME (HERO) ─────────────────────────── */
+  #view-home {
+    position: relative; height: 100svh;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; overflow: hidden;
+  }
+  body:not(.home) #view-home { display: none; }
+  body.home #view-main { display: none; }
+
+  /* fondo animado (sustituto autocontenido del video) */
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(70px);
+    opacity: .55; will-change: transform;
+  }
+  .blob.b1 { width: 620px; height: 620px; background: radial-gradient(circle, #3E7BD6 0%, transparent 68%); top: -12%; left: -8%;  animation: drift1 17s ease-in-out infinite alternate; }
+  .blob.b2 { width: 520px; height: 520px; background: radial-gradient(circle, #1F3F66 0%, transparent 70%); bottom: -14%; right: -6%; animation: drift2 21s ease-in-out infinite alternate; opacity: .9; }
+  .blob.b3 { width: 340px; height: 340px; background: radial-gradient(circle, #E8960C 0%, transparent 70%); bottom: 6%; left: 16%;  animation: drift3 14s ease-in-out infinite alternate; opacity: .22; }
+  .blob.b4 { width: 300px; height: 300px; background: radial-gradient(circle, #9CC3F0 0%, transparent 70%); top: 12%; right: 14%;   animation: drift1 19s ease-in-out infinite alternate-reverse; opacity: .25; }
+  @keyframes drift1 { from { transform: translate(0,0) scale(1); } to { transform: translate(90px,60px) scale(1.15); } }
+  @keyframes drift2 { from { transform: translate(0,0) scale(1.1); } to { transform: translate(-70px,-80px) scale(.95); } }
+  @keyframes drift3 { from { transform: translate(0,0); } to { transform: translate(60px,-70px) scale(1.2); } }
+
+  #hero-over { position: absolute; inset: 0; background: rgba(10,19,33,.30); }
+
+  /* grano de película */
+  .grain {
+    position: absolute; inset: -100px; pointer-events: none; opacity: .07; z-index: 5;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain 8s steps(10) infinite;
+  }
+  @keyframes grain {
+    0%,100% { transform: translate(0,0) }
+    10% { transform: translate(-24px,18px) }
+    30% { transform: translate(18px,-30px) }
+    50% { transform: translate(-30px,-12px) }
+    70% { transform: translate(24px,24px) }
+    90% { transform: translate(-12px,30px) }
+  }
+
+  .hero-eyebrow {
+    position: relative; z-index: 10;
+    font-size: 11px; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
+    color: var(--sky); margin-bottom: 18px; text-align: center; padding: 0 20px;
+    opacity: 0; transform: translateY(14px); transition: opacity .8s ease .5s, transform .8s ease .5s;
+  }
+  body.ready .hero-eyebrow { opacity: 1; transform: translateY(0); }
+
+  /* CTA letra a letra */
+  .shop-here {
+    position: relative; z-index: 10;
+    font-family: var(--disp);
+    font-size: clamp(38px, 8.4vw, 76px);
+    letter-spacing: .02em; text-transform: uppercase;
+    color: var(--white); text-decoration: none; background: none; border: none;
+    display: flex; gap: .04em; overflow: hidden; padding: .08em .1em;
+  }
+  .shop-here .ch {
+    display: inline-block;
+    transform: translateY(115%);
+    transition: transform .7s cubic-bezier(.19,1,.22,1);
+  }
+  .shop-here .sp { width: .35em; }
+  body.ready .shop-here .ch { transform: translateY(0); }
+  .shop-here:hover .ch { transform: translateY(-6%) skewX(-8deg); color: var(--amber); }
+
+  .hero-sub {
+    position: relative; z-index: 10; margin-top: 20px; max-width: 520px;
+    text-align: center; font-size: 14px; color: rgba(244,247,251,.75); padding: 0 24px;
+    opacity: 0; transform: translateY(14px); transition: opacity .8s ease .9s, transform .8s ease .9s;
+  }
+  body.ready .hero-sub { opacity: 1; transform: translateY(0); }
+  .hero-sub strong { color: var(--white); }
+
+  .hero-badges {
+    position: relative; z-index: 10; margin-top: 26px;
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; padding: 0 20px;
+    opacity: 0; transition: opacity .8s ease 1.2s;
+  }
+  body.ready .hero-badges { opacity: 1; }
+  .hbadge {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--sky); border: 1px solid rgba(156,195,240,.35);
+    padding: 7px 14px; border-radius: 100px;
+  }
+
+  /* ── VISTA PRINCIPAL ─────────────────────── */
+  #view-main { padding-top: var(--nav-h); }
+  @media (min-width: 900px) { #view-main { padding-top: 80px; } }
+
+  /* ticker */
+  .ticker {
+    background: var(--amber); color: #221503;
+    font-family: var(--disp); font-size: 11px;
+    letter-spacing: .18em; text-transform: uppercase;
+    padding: 11px 0; overflow: hidden; white-space: nowrap;
+  }
+  .ticker-track { display: inline-block; animation: tick 26s linear infinite; }
+  .ticker-track span { padding: 0 32px; }
+  @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  section { padding: 72px 20px; max-width: 1200px; margin: 0 auto; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
+  .sec-title {
+    font-family: var(--disp);
+    font-size: clamp(26px, 6vw, 48px);
+    letter-spacing: .05em; text-transform: uppercase;
+  }
+  .sec-count { font-size: 11px; color: var(--gray); letter-spacing: .1em; text-transform: uppercase; }
+  .sec-intro { max-width: 640px; color: rgba(244,247,251,.72); font-size: 14.5px; margin-bottom: 40px; }
+  .sec-intro strong { color: var(--white); }
+
+  /* reveal on scroll */
+  .rev { opacity: 0; transform: translateY(26px); transition: opacity .6s ease, transform .6s cubic-bezier(.19,1,.22,1); }
+  .rev.in { opacity: 1; transform: translateY(0); }
+
+  /* ── KITS ────────────────────────────────── */
+  .kgrid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+  @media (min-width: 720px)  { .kgrid { grid-template-columns: repeat(3, 1fr); } }
+
+  .kcard {
+    background: var(--bg2); border: 1px solid var(--line); border-radius: 14px;
+    padding: 26px 22px 24px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column;
+    transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+  }
+  .kcard:hover { transform: translateY(-5px); border-color: var(--blue); }
+  .kcard.reco {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px var(--amber), 0 18px 50px rgba(232,150,12,.16);
+  }
+  .kcard.reco::after {
+    content: 'Recomendado ✦';
+    position: absolute; top: 22px; right: -38px; transform: rotate(42deg);
+    background: var(--amber); color: #221503;
+    font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+    padding: 5px 48px;
+  }
+  .kbadge {
+    position: absolute; top: 16px; left: 22px;
+    background: var(--blue); color: var(--white);
+    font-size: 9px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; padding: 4px 10px; border-radius: 3px;
+  }
+  .kico {
+    height: 120px; display: flex; align-items: center; justify-content: center;
+    margin: 26px 0 8px;
+  }
+  .kico svg { width: 96px; height: 96px; }
+  .knum { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gray); margin-bottom: 4px; }
+  .kname {
+    font-family: var(--disp); font-size: 26px; letter-spacing: .05em;
+    text-transform: uppercase; margin-bottom: 6px;
+  }
+  .kperfil { font-size: 13px; color: var(--sky); margin-bottom: 14px; min-height: 40px; }
+  .kprice { font-family: var(--disp); font-size: 34px; letter-spacing: .02em; color: var(--white); }
+  .kprice small { font-size: 12px; font-family: var(--body); font-weight: 700; color: var(--amber); letter-spacing: .08em; text-transform: uppercase; margin-left: 8px; }
+  .kdevice { font-size: 12.5px; color: rgba(244,247,251,.6); margin: 10px 0 14px; line-height: 1.5; }
+  .kchips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+  .kchip {
+    font-size: 10px; font-weight: 600; letter-spacing: .06em;
+    color: var(--sky); background: rgba(62,123,214,.14);
+    border: 1px solid rgba(62,123,214,.35);
+    padding: 4px 10px; border-radius: 100px;
+  }
+  .kbtns { margin-top: auto; display: flex; gap: 8px; }
+  .kbtn {
+    flex: 1; font-family: var(--body); font-size: 11px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    padding: 12px 8px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--line); background: none; color: var(--white);
+    transition: all .2s;
+  }
+  .kbtn:hover { border-color: var(--sky); background: rgba(156,195,240,.08); }
+  .kbtn.solid { background: var(--amber); border-color: var(--amber); color: #221503; }
+  .kbtn.solid:hover { background: #f7a821; }
+
+  .kits-cta { text-align: center; margin-top: 44px; }
+  .kits-cta p { font-size: 14px; color: rgba(244,247,251,.7); margin-bottom: 14px; }
+  .big-link {
+    display: inline-block; font-family: var(--disp);
+    font-size: clamp(20px, 4vw, 30px); letter-spacing: .06em; text-transform: uppercase;
+    color: var(--amber); text-decoration: none; background: none; border: none; cursor: pointer;
+    border-bottom: 2px solid rgba(232,150,12,.4); padding-bottom: 3px;
+    transition: border-color .2s, transform .25s ease;
+  }
+  .big-link:hover { border-color: var(--amber); transform: translateX(6px); }
+
+  .iva-note { text-align: center; font-size: 11px; color: var(--gray); margin-top: 26px; letter-spacing: .04em; }
+
+  /* ── SELECTOR ────────────────────────────── */
+  #selector { border-top: 1px solid var(--line); max-width: none; padding-left: 0; padding-right: 0; background: var(--bg2); }
+  .sel-inner { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  .sel-box {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 16px;
+    padding: 36px 26px; margin-top: 34px; position: relative; overflow: hidden;
+  }
+  .sel-progress { display: flex; gap: 6px; margin-bottom: 30px; }
+  .sel-progress i {
+    flex: 1; height: 3px; background: var(--line); border-radius: 4px;
+    transition: background .3s;
+  }
+  .sel-progress i.on { background: var(--amber); }
+  .sel-qnum { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--amber); margin-bottom: 8px; font-weight: 700; }
+  .sel-q { font-family: var(--disp); font-size: clamp(20px, 4.4vw, 30px); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 24px; }
+  .sel-opts { display: flex; flex-direction: column; gap: 10px; }
+  .sopt {
+    display: flex; align-items: center; gap: 14px; text-align: left;
+    background: var(--bg2); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px; cursor: pointer; color: var(--white);
+    font-family: var(--body); font-size: 14px; transition: all .2s;
+  }
+  .sopt:hover { border-color: var(--blue); background: rgba(62,123,214,.1); transform: translateX(4px); }
+  .sopt .emo { font-size: 22px; flex-shrink: 0; }
+  .sopt b { display: block; font-size: 14px; }
+  .sopt span.sub { display: block; font-size: 12px; color: var(--gray); }
+  .sel-back {
+    margin-top: 18px; background: none; border: none; color: var(--gray);
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
+  }
+  .sel-back:hover { color: var(--white); }
+
+  /* resultado */
+  .sel-result { text-align: center; padding: 10px 0; }
+  .sel-result .rtag { font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: var(--amber); font-weight: 700; }
+  .sel-result .rname { font-family: var(--disp); font-size: clamp(30px, 7vw, 52px); letter-spacing: .04em; text-transform: uppercase; margin: 10px 0 4px; }
+  .sel-result .rprice { font-family: var(--disp); font-size: 24px; color: var(--sky); margin-bottom: 18px; }
+  .sel-result .rprice small { font-size: 11px; font-family: var(--body); color: var(--amber); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .rwhy { max-width: 480px; margin: 0 auto 24px; text-align: left; }
+  .rwhy li {
+    list-style: none; font-size: 13.5px; color: rgba(244,247,251,.8);
+    padding: 8px 0 8px 26px; position: relative; border-bottom: 1px dashed var(--line);
+  }
+  .rwhy li::before { content: '✦'; position: absolute; left: 4px; color: var(--amber); }
+  .rbtns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  /* ── CONFIANZA ───────────────────────────── */
+  #confianza { border-top: 1px solid var(--line); }
+  .tgrid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 38px; }
+  @media (min-width: 600px) { .tgrid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 960px) { .tgrid { grid-template-columns: repeat(4, 1fr); } }
+  .tcard {
+    background: var(--bg2); border: 1px solid var(--line);
+    border-radius: 10px; padding: 26px 20px;
+  }
+  .tcard .emo { font-size: 26px; margin-bottom: 14px; display: block; }
+  .tcard-t { font-family: var(--disp); font-size: 16px; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 8px; }
+  .tcard-d { font-size: 12.5px; line-height: 1.65; color: rgba(244,247,251,.6); }
+
+  .steps { display: flex; flex-direction: column; margin-top: 64px; border-top: 1px solid var(--line); }
+  .steps-title { font-family: var(--disp); font-size: clamp(18px, 4vw, 26px); letter-spacing: .06em; text-transform: uppercase; margin: 42px 0 10px; }
+  .step {
+    display: grid; grid-template-columns: 56px 1fr;
+    gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--line);
+    align-items: start;
+  }
+  .step-n { font-family: var(--disp); font-size: 13px; letter-spacing: .1em; color: var(--amber); }
+  .step-t { font-family: var(--disp); font-size: 16px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+  .step-d { font-size: 13px; color: rgba(244,247,251,.55); line-height: 1.6; }
+
+  .reviews { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 56px; }
+  @media (min-width: 720px) { .reviews { grid-template-columns: repeat(3, 1fr); } }
+  .review {
+    background: rgba(62,123,214,.07); border: 1px solid var(--line);
+    border-radius: 10px; padding: 22px 20px;
+  }
+  .rstars { color: var(--amber); letter-spacing: 3px; font-size: 13px; margin-bottom: 10px; }
+  .rtext { font-size: 13px; color: rgba(244,247,251,.78); line-height: 1.6; margin-bottom: 12px; }
+  .rname2 { font-size: 11px; color: var(--gray); letter-spacing: .06em; text-transform: uppercase; }
+  .rverif { color: var(--sky); font-size: 10px; }
+
+  /* ── B2B ─────────────────────────────────── */
+  #b2b { border-top: 1px solid var(--line); max-width: none; background: var(--bg3); padding-left: 0; padding-right: 0; }
+  .b2b-inner { max-width: 1100px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: 1fr; gap: 44px; }
+  @media (min-width: 900px) { .b2b-inner { grid-template-columns: 1fr 1fr; align-items: start; } }
+  .b2b-copy .sec-title { margin-bottom: 14px; }
+  .b2b-copy p { font-size: 14.5px; color: rgba(244,247,251,.8); margin-bottom: 16px; max-width: 460px; }
+  .b2b-prices { margin: 26px 0; border-top: 1px solid rgba(156,195,240,.25); }
+  .b2b-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 13px 2px; border-bottom: 1px solid rgba(156,195,240,.25);
+  }
+  .b2b-row b { font-family: var(--disp); font-size: 15px; letter-spacing: .06em; text-transform: uppercase; font-weight: 400; }
+  .b2b-row span { font-family: var(--disp); font-size: 19px; color: var(--sky); }
+  .b2b-row span small { font-size: 10px; font-family: var(--body); color: rgba(244,247,251,.55); letter-spacing: .05em; }
+  .b2b-note { font-size: 11.5px; color: rgba(244,247,251,.55); }
+
+  .form {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
+    padding: 30px 24px;
+  }
+  .form h3 { font-family: var(--disp); font-size: 20px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 22px; }
+  .frow { margin-bottom: 14px; }
+  .frow label {
+    display: block; font-size: 10px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--sky); margin-bottom: 6px;
+  }
+  .frow input, .frow select, .frow textarea {
+    width: 100%; background: var(--bg2); border: 1px solid var(--line);
+    border-radius: 7px; color: var(--white); font-family: var(--body);
+    font-size: 14px; padding: 12px 14px; outline: none; transition: border-color .2s;
+    -webkit-appearance: none; appearance: none;
+  }
+  .frow input:focus, .frow select:focus, .frow textarea:focus { border-color: var(--blue); }
+  .frow textarea { resize: vertical; min-height: 84px; }
+  .frow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .fsubmit {
+    width: 100%; margin-top: 8px; background: var(--amber); border: none; color: #221503;
+    font-family: var(--body); font-weight: 800; font-size: 12px; letter-spacing: .14em;
+    text-transform: uppercase; padding: 15px; border-radius: 7px; cursor: pointer;
+    transition: background .2s, transform .15s;
+  }
+  .fsubmit:hover { background: #f7a821; transform: translateY(-1px); }
+  .fok {
+    display: none; text-align: center; padding: 40px 10px;
+  }
+  .fok.show { display: block; }
+  .fok .emo { font-size: 44px; display: block; margin-bottom: 14px; }
+  .fok h4 { font-family: var(--disp); font-size: 22px; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 10px; }
+  .fok p { font-size: 13px; color: rgba(244,247,251,.65); }
+
+  /* ── APADRINA ────────────────────────────── */
+  #apadrina { max-width: none; background: var(--amber); color: #221503; padding: 64px 20px; }
+  .apa-inner { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
+  @media (min-width: 860px) { .apa-inner { flex-direction: row; align-items: center; justify-content: space-between; } }
+  .apa-title { font-family: var(--disp); font-size: clamp(26px, 5.5vw, 44px); letter-spacing: .04em; text-transform: uppercase; line-height: 1.05; }
+  .apa-copy { max-width: 440px; font-size: 14px; font-weight: 500; line-height: 1.6; }
+  .apa-btn {
+    flex-shrink: 0; background: #221503; color: var(--amber); border: none;
+    font-family: var(--disp); font-size: 17px; letter-spacing: .08em; text-transform: uppercase;
+    padding: 18px 30px; border-radius: 8px; cursor: pointer; transition: transform .2s, opacity .2s;
+  }
+  .apa-btn:hover { transform: translateY(-2px); opacity: .92; }
+
+  /* ── FOOTER ─────────────────────────────── */
+  footer { border-top: 1px solid var(--line); padding: 44px 20px 28px; }
+  .foot-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+  }
+  @media (min-width: 640px) {
+    .foot-inner { flex-direction: row; justify-content: space-between; align-items: center; }
+  }
+  .foot-logo { font-size: 28px; }
+  .foot-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .foot-links a, .foot-links button {
+    font-size: 10px; letter-spacing: .13em; text-transform: uppercase;
+    color: var(--gray); text-decoration: none; transition: color .2s;
+    background: none; border: none; cursor: pointer; font-family: var(--body);
+  }
+  .foot-links a:hover, .foot-links button:hover { color: var(--white); }
+  .foot-copy { font-size: 10px; color: var(--gray); letter-spacing: .06em; text-align: center; }
+
+  /* ── MODALES ─────────────────────────────── */
+  .modal {
+    position: fixed; inset: 0; background: rgba(6,12,21,.85);
+    z-index: 1500; display: flex;
+    align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .3s;
+  }
+  @media (min-width: 600px) { .modal { align-items: center; padding: 30px; } }
+  .modal.open { opacity: 1; pointer-events: all; }
+  .mbox {
+    background: var(--bg2); border: 1px solid var(--line);
+    width: 100%; max-width: 560px; max-height: 88svh; overflow-y: auto;
+    padding: 36px 26px 30px;
+    border-radius: 14px 14px 0 0; position: relative;
+    transform: translateY(24px); transition: transform .32s ease;
+  }
+  @media (min-width: 600px) { .mbox { border-radius: 14px; transform: scale(.96); } }
+  .modal.open .mbox { transform: translateY(0) scale(1); }
+  .mclose {
+    position: sticky; top: 0; float: right; margin: -20px -6px 0 0;
+    background: none; border: none; color: var(--gray);
+    font-size: 28px; cursor: pointer; line-height: 1; z-index: 2;
+  }
+  .mclose:hover { color: var(--white); }
+  .mtag { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px; font-weight: 700; }
+  .mtitle { font-family: var(--disp); font-size: 28px; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
+  .mprice { font-family: var(--disp); font-size: 24px; color: var(--sky); margin-bottom: 20px; }
+  .mprice small { font-size: 11px; font-family: var(--body); color: var(--amber); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .msec { margin-bottom: 20px; }
+  .msec h4 {
+    font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--sky); margin-bottom: 9px; padding-bottom: 6px; border-bottom: 1px solid var(--line);
+  }
+  .msec li { list-style: none; font-size: 13.5px; color: rgba(244,247,251,.82); padding: 5px 0 5px 22px; position: relative; }
+  .msec.uso li::before   { content: '✓'; position: absolute; left: 2px; color: #57c78a; font-weight: 700; }
+  .msec.inc li::before   { content: '+'; position: absolute; left: 4px; color: var(--sky); font-weight: 700; }
+  .msec.lim li::before   { content: '—'; position: absolute; left: 0; color: var(--amber); font-weight: 700; }
+  .mnote { font-size: 11.5px; color: var(--gray); line-height: 1.55; margin-bottom: 18px; }
+  .mtrust {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px;
+  }
+  .mtrust span {
+    font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--sky); background: rgba(62,123,214,.12); border: 1px solid rgba(62,123,214,.3);
+    padding: 6px 11px; border-radius: 100px;
+  }
+  .mbtns { display: flex; gap: 10px; }
+  .mbtns .kbtn { padding: 14px 8px; }
+
+  /* cesta */
+  .cart-line {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 14px;
+  }
+  .cart-line b { font-family: var(--disp); letter-spacing: .05em; font-weight: 400; text-transform: uppercase; }
+  .cart-line .cprice { font-family: var(--disp); color: var(--sky); }
+  .cart-del { background: none; border: none; color: var(--gray); cursor: pointer; font-size: 16px; margin-left: 12px; }
+  .cart-del:hover { color: #e66; }
+  .cart-total {
+    display: flex; justify-content: space-between; padding: 16px 0 4px;
+    font-family: var(--disp); font-size: 20px; letter-spacing: .04em;
+  }
+  .cart-total span { color: var(--amber); }
+  .cart-empty { text-align: center; color: var(--gray); font-size: 13px; padding: 30px 0; }
+  .cart-note { font-size: 11px; color: var(--gray); margin: 10px 0 16px; line-height: 1.5; }
+
+  /* toast */
+  #toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--bg2); border: 1px solid var(--amber); color: var(--white);
+    font-size: 13px; padding: 13px 22px; border-radius: 100px; z-index: 9600;
+    transition: transform .35s cubic-bezier(.19,1,.22,1); white-space: nowrap;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body class="home locked">
+
+<!-- ── CURSOR ──────────────────────────────── -->
+<div class="cur-ring" id="curRing"></div>
+<div class="cur-dot"  id="curDot"></div>
+
+<!-- ── LOADER ──────────────────────────────── -->
+<div id="loader">
+  <div class="curt curt-top"></div>
+  <div class="curt curt-bottom"></div>
+  <span class="wordmark" id="loader-mark">rev<span class="star">✦</span>lt</span>
+</div>
+
+<!-- ── WIPE ────────────────────────────────── -->
+<div id="wipe"></div>
+
+<!-- ── NAVBAR ──────────────────────────────── -->
+<nav id="nav">
+  <button class="burger" id="burger" aria-label="Menú">
+    <span></span><span></span><span></span>
+  </button>
+  <a href="#" class="wordmark nav-logo" id="logoHome">rev<span class="star">✦</span>lt</a>
+  <button class="bag" id="bagBtn">CESTA<sup id="bagCount">0</sup></button>
+</nav>
+
+<!-- ── LINKS LATERALES (desktop, home) ─────── -->
+<div class="side-links">
+  <a href="#kits"      data-go style="transition-delay:.05s">Los kits</a>
+  <a href="#selector"  data-go style="transition-delay:.1s">Hazme el test</a>
+  <a href="#confianza" data-go style="transition-delay:.15s">Confianza</a>
+  <a href="#b2b"       data-go style="transition-delay:.2s">Centros y entidades</a>
+  <a href="#apadrina"  data-go style="transition-delay:.25s">Apadrina un kit</a>
+  <a href="mailto:hola@revolt.es" style="transition-delay:.3s">Contacto</a>
+</div>
+
+<!-- ── MENU FULLSCREEN ─────────────────────── -->
+<div id="mmenu">
+  <button class="mlink" data-go data-target="#kits">Los kits</button>
+  <button class="mlink" data-go data-target="#selector">Hazme el test</button>
+  <button class="mlink" data-go data-target="#confianza">Confianza</button>
+  <button class="mlink" data-go data-target="#b2b">Centros</button>
+  <button class="mlink" data-go data-target="#apadrina">Apadrina</button>
+  <div class="msocial">
+    <a href="mailto:hola@revolt.es">Contacto</a>
+    <a href="#" onclick="return false">Instagram</a>
+  </div>
+</div>
+
+<!-- ══════════════ VISTA HOME ══════════════ -->
+<div id="view-home">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+  <div id="hero-over"></div>
+  <div class="grain"></div>
+
+  <p class="hero-eyebrow">Tecnología educativa reacondicionada · Madrid</p>
+  <button class="shop-here" id="shopHere">Ver los kits</button>
+  <p class="hero-sub">
+    Tres kits completos para estudiar: dispositivo revisado, accesorios y puesta a punto.
+    <strong>Precio total con IVA desde el primer clic.</strong> Sin jerga, sin sorpresas.
+  </p>
+  <div class="hero-badges">
+    <span class="hbadge">Garantía incluida</span>
+    <span class="hbadge">Devolución 30 días</span>
+    <span class="hbadge">Borrado certificado</span>
+    <span class="hbadge">Listo para usar</span>
+  </div>
+</div>
+
+<!-- ══════════════ VISTA PRINCIPAL ══════════════ -->
+<div id="view-main">
+
+  <!-- ── TICKER ── -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>REV✦LT — KITS EDUCATIVOS REACONDICIONADOS</span><span>·</span>
+      <span>IVA INCLUIDO EN TODOS LOS PRECIOS</span><span>·</span>
+      <span>GARANTÍA INCLUIDA</span><span>·</span>
+      <span>DEVOLUCIÓN 30 DÍAS</span><span>·</span>
+      <span>BORRADO CERTIFICADO DE DATOS</span><span>·</span>
+      <span>REV✦LT — KITS EDUCATIVOS REACONDICIONADOS</span><span>·</span>
+      <span>IVA INCLUIDO EN TODOS LOS PRECIOS</span><span>·</span>
+      <span>GARANTÍA INCLUIDA</span><span>·</span>
+      <span>DEVOLUCIÓN 30 DÍAS</span><span>·</span>
+      <span>BORRADO CERTIFICADO DE DATOS</span><span>·</span>
+    </div>
+  </div>
+
+  <!-- ── KITS ── -->
+  <section id="kits">
+    <div class="sec-head">
+      <h2 class="sec-title">Los kits</h2>
+      <span class="sec-count">— 3 kits. No hay más, no hacen falta más.</span>
+    </div>
+    <p class="sec-intro">
+      Cada kit es una <strong>solución completa</strong>: el dispositivo reacondicionado, sus accesorios
+      y toda la preparación (revisión, borrado seguro de datos, configuración inicial y garantía).
+      El precio que ves es el precio final, <strong>con IVA incluido</strong>.
+    </p>
+
+    <div class="kgrid" id="kgrid"></div>
+
+    <div class="kits-cta rev">
+      <p>¿No tienes claro cuál encaja con tu caso? No necesitas saber de tecnología.</p>
+      <button class="big-link" data-go data-target="#selector">Hazme el test de 1 minuto →</button>
+    </div>
+    <p class="iva-note rev">Los modelos indicados son referencias del nivel técnico de cada kit — el stock reacondicionado varía, la calidad no.</p>
+  </section>
+
+  <!-- ── SELECTOR ── -->
+  <section id="selector">
+    <div class="sel-inner">
+      <div class="sec-head">
+        <h2 class="sec-title">¿Qué kit es el mío?</h2>
+      </div>
+      <p class="sec-intro" style="margin-bottom:0">
+        Cuatro preguntas sobre cómo se va a usar — <strong>nada de gigas ni procesadores</strong> —
+        y te decimos qué kit encaja. Tarda menos de un minuto.
+      </p>
+      <div class="sel-box rev" id="selBox"></div>
+    </div>
+  </section>
+
+  <!-- ── CONFIANZA ── -->
+  <section id="confianza">
+    <div class="sec-head">
+      <h2 class="sec-title">Comprar reacondicionado sin miedo</h2>
+    </div>
+    <p class="sec-intro">
+      Sabemos lo que da respeto de la segunda mano: que falle, que traiga datos de otro,
+      que no haya a quién reclamar. Por eso cada kit sale con esto, <strong>por escrito</strong>:
+    </p>
+
+    <div class="tgrid">
+      <div class="tcard rev">
+        <span class="emo">🛡️</span>
+        <div class="tcard-t">Garantía incluida</div>
+        <p class="tcard-d">Todos los kits salen con garantía legal de reacondicionado. Si algo falla, lo reparamos o lo cambiamos. Sin letra pequeña.</p>
+      </div>
+      <div class="tcard rev">
+        <span class="emo">↩️</span>
+        <div class="tcard-t">Devolución 30 días</div>
+        <p class="tcard-d">Un mes entero para probarlo en el día a día real: clases, deberes, casa. Si no convence, lo devuelves y te devolvemos el dinero.</p>
+      </div>
+      <div class="tcard rev">
+        <span class="emo">🔒</span>
+        <div class="tcard-t">Borrado certificado</div>
+        <p class="tcard-d">Cada equipo pasa un borrado seguro de datos certificado antes de reconfigurarse. No queda nada del usuario anterior. Nada.</p>
+      </div>
+      <div class="tcard rev">
+        <span class="emo">📦</span>
+        <div class="tcard-t">Llega listo para usar</div>
+        <p class="tcard-d">Configuración inicial incluida: se enciende y se empieza a estudiar. Sin instalar nada, sin llamar al primo informático.</p>
+      </div>
+    </div>
+
+    <div class="steps rev">
+      <h3 class="steps-title">Cómo preparamos cada equipo</h3>
+      <div class="step">
+        <span class="step-n">PASO 1</span>
+        <div>
+          <div class="step-t">Diagnóstico completo</div>
+          <p class="step-d">Verificación funcional pieza a pieza: pantalla, batería, teclado, puertos, cámara y sonido. Lo que no pasa el corte, no se vende.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">PASO 2</span>
+        <div>
+          <div class="step-t">Borrado seguro certificado</div>
+          <p class="step-d">Eliminación certificada de todos los datos del usuario anterior, con registro del proceso. Privacidad de serie.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">PASO 3</span>
+        <div>
+          <div class="step-t">Puesta a punto</div>
+          <p class="step-d">Limpieza a fondo, sustitución de lo que esté justo y sistema operativo recién instalado y actualizado.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">PASO 4</span>
+        <div>
+          <div class="step-t">Configuración educativa</div>
+          <p class="step-d">Lo dejamos preparado para estudiar: cuentas listas para crear, navegador, ofimática y ajustes pensados para el aula.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">PASO 5</span>
+        <div>
+          <div class="step-t">Kit completo y garantía</div>
+          <p class="step-d">Se empaqueta con sus accesorios, su garantía y su hoja de revisión. Un kit, una caja, cero sorpresas.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reviews">
+      <div class="review rev">
+        <div class="rstars">★★★★★</div>
+        <p class="rtext">"Compramos el Completo para mi hija de 3º de ESO. Llegó impecable y encendido a la primera. Un año después, ni un problema."</p>
+        <div class="rname2">Marta G. · Madrid <span class="rverif">· Compra verificada</span></div>
+      </div>
+      <div class="review rev">
+        <div class="rstars">★★★★★</div>
+        <p class="rtext">"El test me recomendó el Esencial y acertó: para el aula virtual del cole va de sobra. Nos ahorramos más de 200 € frente a uno nuevo."</p>
+        <div class="rname2">Jorge R. · Getafe <span class="rverif">· Compra verificada</span></div>
+      </div>
+      <div class="review rev">
+        <div class="rstars">★★★★☆</div>
+        <p class="rtext">"Soy estudiante de ingeniería y el Avanzado mueve todo lo que le echo. Se nota que está usado en la carcasa, pero por dentro vuela."</p>
+        <div class="rname2">Lucía P. · Alcorcón <span class="rverif">· Compra verificada</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── B2B ── -->
+  <section id="b2b">
+    <div class="b2b-inner">
+      <div class="b2b-copy rev">
+        <h2 class="sec-title">Centros y entidades</h2>
+        <p>
+          Equipamos <strong>colegios, institutos, asociaciones, fundaciones y administraciones</strong>
+          con lotes de kits listos para el aula: misma preparación, misma garantía, tarifa por volumen.
+        </p>
+        <div class="b2b-prices">
+          <div class="b2b-row"><b>Kit 1 · Esencial</b><span>179 € <small>/ ud. sin IVA</small></span></div>
+          <div class="b2b-row"><b>Kit 2 · Completo</b><span>215 € <small>/ ud. sin IVA</small></span></div>
+          <div class="b2b-row"><b>Kit 3 · Avanzado</b><span>330 € <small>/ ud. sin IVA</small></span></div>
+        </div>
+        <p class="b2b-note">
+          Tarifas para compra por lotes. Incluyen la misma preparación que la gama doméstica:
+          verificación, borrado certificado, configuración y garantía. Te preparamos el presupuesto en 48 h laborables.
+        </p>
+      </div>
+
+      <div class="form rev" id="b2bForm">
+        <div id="b2bFields">
+          <h3>Pide presupuesto por lotes</h3>
+          <div class="frow">
+            <label for="f-ent">Nombre de la entidad</label>
+            <input id="f-ent" type="text" placeholder="CEIP Miguel Delibes" required>
+          </div>
+          <div class="frow2">
+            <div class="frow">
+              <label for="f-tipo">Tipo de entidad</label>
+              <select id="f-tipo">
+                <option>Centro educativo</option>
+                <option>Asociación</option>
+                <option>Fundación</option>
+                <option>Administración pública</option>
+                <option>Otra</option>
+              </select>
+            </div>
+            <div class="frow">
+              <label for="f-kit">Kit que interesa</label>
+              <select id="f-kit">
+                <option>Kit 1 · Esencial</option>
+                <option>Kit 2 · Completo</option>
+                <option>Kit 3 · Avanzado</option>
+                <option>Combinación de varios</option>
+                <option>Aún no lo sé</option>
+              </select>
+            </div>
+          </div>
+          <div class="frow2">
+            <div class="frow">
+              <label for="f-uds">Nº de unidades (aprox.)</label>
+              <input id="f-uds" type="number" min="5" placeholder="25" required>
+            </div>
+            <div class="frow">
+              <label for="f-mail">Email de contacto</label>
+              <input id="f-mail" type="email" placeholder="direccion@centro.edu" required>
+            </div>
+          </div>
+          <div class="frow">
+            <label for="f-msg">Cuéntanos tu caso (opcional)</label>
+            <textarea id="f-msg" placeholder="Necesitamos equipar dos aulas de 1º de la ESO para el curso que viene…"></textarea>
+          </div>
+          <button class="fsubmit" id="b2bSend">Pedir presupuesto →</button>
+        </div>
+        <div class="fok" id="b2bOk">
+          <span class="emo">📬</span>
+          <h4>¡Recibido!</h4>
+          <p>Gracias. Te enviaremos el presupuesto detallado en un máximo de <b>48 h laborables</b> al correo indicado.<br><br><em>(Prototipo: el envío es simulado.)</em></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── APADRINA ── -->
+  <section id="apadrina">
+    <div class="apa-inner">
+      <div>
+        <h2 class="apa-title">Apadrina un kit ✦</h2>
+        <p class="apa-copy" style="margin-top:12px">
+          Hay estudiantes que siguen las clases desde el móvil de sus padres.
+          Por <b>lo que cuesta un kit</b>, uno de ellos recibe un equipo completo, revisado y listo —
+          a través de centros y entidades sociales colaboradoras. Te contamos a quién ayuda tu aportación.
+        </p>
+      </div>
+      <button class="apa-btn" id="apaBtn">Quiero apadrinar</button>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="foot-inner">
+      <span class="wordmark foot-logo">rev<span class="star">✦</span>lt</span>
+      <div class="foot-links">
+        <button data-go data-target="#kits">Kits</button>
+        <button data-go data-target="#selector">Selector</button>
+        <button data-go data-target="#confianza">Confianza</button>
+        <button data-go data-target="#b2b">Centros</button>
+        <button data-go data-target="#apadrina">Apadrina</button>
+        <a href="mailto:hola@revolt.es">Contacto</a>
+      </div>
+      <div class="foot-copy">© 2026 ReVolt · Tecnología que vuelve al aula · Prototipo TFG</div>
+    </div>
+  </footer>
+</div>
+
+<!-- ── MODAL FICHA KIT ─────────────────────── -->
+<div class="modal" id="kitModal">
+  <div class="mbox" id="kitModalBox"></div>
+</div>
+
+<!-- ── MODAL CESTA ─────────────────────────── -->
+<div class="modal" id="cartModal">
+  <div class="mbox">
+    <button class="mclose" data-close>×</button>
+    <p class="mtag">Tu cesta</p>
+    <h3 class="mtitle">Resumen</h3>
+    <div id="cartLines"></div>
+    <p class="cart-note">
+      Sin costes ocultos: el total es el total. En la versión final el pago se hace con
+      tarjeta o wallets (Apple Pay / Google Pay) a través de Shopify Payments.
+    </p>
+    <div class="mbtns">
+      <button class="kbtn" data-close>Seguir mirando</button>
+      <button class="kbtn solid" id="payBtn">Pagar (demo) →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL APADRINA ──────────────────────── -->
+<div class="modal" id="apaModal">
+  <div class="mbox">
+    <button class="mclose" data-close>×</button>
+    <p class="mtag">Apadrinamiento</p>
+    <h3 class="mtitle">Así funciona</h3>
+    <div class="msec inc">
+      <ul>
+        <li>Eliges qué kit apadrinas (o aportas una cantidad libre).</li>
+        <li>Preparamos el equipo igual que uno de venta: revisión, borrado y garantía.</li>
+        <li>Una entidad social o centro colaborador lo entrega a un estudiante sin recursos.</li>
+        <li>Recibes confirmación del destino de tu aportación (siempre anonimizada).</li>
+      </ul>
+    </div>
+    <p class="mnote">En el prototipo, escríbenos y te contamos cómo participar.</p>
+    <div class="mbtns">
+      <button class="kbtn" data-close>Cerrar</button>
+      <a class="kbtn solid" href="mailto:apadrina@revolt.es" style="text-align:center; text-decoration:none; line-height:1.2;">Escribir a apadrina@revolt.es</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ───────────────────────────────── -->
+<div id="toast"></div>
+
+<script>
+/* ═══════════ DATOS DE LOS KITS ═══════════ */
+const KITS = [
+  {
+    id: 1, name: 'Esencial', num: 'Kit 1', badge: '',
+    price: '240,79', priceN: 240.79,
+    perfil: 'Para seguir el aula virtual, tomar apuntes y consumir contenidos sin complicarse.',
+    device: 'Tableta de 11" reacondicionada (tipo Samsung Galaxy Tab A9+) con funda con soporte y sistema de carga.',
+    chips: ['Tableta 11"', 'Funda con soporte', 'Cargador', 'Lista para usar'],
+    uso: [
+      'Aula virtual del colegio o instituto (Classroom, Teams…)',
+      'Tomar apuntes, leer y hacer trabajos sencillos',
+      'Vídeos educativos, contenidos y apps de estudio',
+      'Ligera: va en cualquier mochila y la batería aguanta la jornada'
+    ],
+    inc: [
+      'Tableta 11" revisada y certificada',
+      'Funda con soporte para verla de pie',
+      'Sistema de carga completo',
+      'Verificación funcional + borrado certificado de datos',
+      'Configuración inicial lista para estudiar',
+      'Garantía incluida y devolución 30 días'
+    ],
+    lim: [
+      'No usa programas de ordenador (Windows): trabaja con apps',
+      'Para escribir trabajos muy largos se agradece un teclado aparte',
+      'No sirve para software técnico o pesado (diseño, programación…)'
+    ],
+    svg: `<svg viewBox="0 0 96 96" fill="none"><rect x="18" y="10" width="60" height="76" rx="7" stroke="#9CC3F0" stroke-width="2.5"/><rect x="24" y="18" width="48" height="56" rx="2" fill="#1F3F66"/><rect x="30" y="26" width="24" height="4" rx="2" fill="#3E7BD6"/><rect x="30" y="35" width="36" height="3" rx="1.5" fill="#2a4569"/><rect x="30" y="42" width="32" height="3" rx="1.5" fill="#2a4569"/><rect x="30" y="49" width="35" height="3" rx="1.5" fill="#2a4569"/><circle cx="48" cy="80" r="2.6" fill="#9CC3F0"/><path d="M60 58 l6 6 l10-12" stroke="#E8960C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  },
+  {
+    id: 2, name: 'Completo', num: 'Kit 2', badge: 'El más elegido',
+    price: '289,19', priceN: 289.19,
+    perfil: 'El equilibrio: portátil de verdad para trabajos, clases online y ofimática.',
+    device: 'Portátil profesional de 14" reacondicionado (tipo Lenovo ThinkPad L490, i5 8.ª gen, 8GB/256GB SSD) con ratón inalámbrico y mochila acolchada.',
+    chips: ['Portátil pro 14"', 'Ratón inalámbrico', 'Mochila acolchada', 'Listo para usar'],
+    uso: [
+      'Redactar trabajos y presentaciones con teclado de verdad',
+      'Clases online con cámara y micro verificados',
+      'Ofimática completa (Word, Excel, PowerPoint y equivalentes)',
+      'Varias pestañas y apps a la vez sin que se arrastre'
+    ],
+    inc: [
+      'Portátil profesional 14" revisado y certificado',
+      'Ratón inalámbrico',
+      'Mochila acolchada para llevarlo protegido',
+      'Verificación funcional + borrado certificado de datos',
+      'Configuración inicial lista para estudiar',
+      'Garantía incluida y devolución 30 días'
+    ],
+    lim: [
+      'No es para editar vídeo pesado ni para jugar a juegos exigentes',
+      'La batería es de equipo reacondicionado: correcta, no la de un ultrabook nuevo',
+      'Chasis profesional: sobrio y resistente, no finito y de diseño'
+    ],
+    svg: `<svg viewBox="0 0 96 96" fill="none"><path d="M20 22 h56 v40 h-56 z" stroke="#9CC3F0" stroke-width="2.5" rx="3"/><rect x="25" y="27" width="46" height="30" rx="1.5" fill="#1F3F66"/><rect x="30" y="33" width="20" height="3.5" rx="1.75" fill="#3E7BD6"/><rect x="30" y="41" width="30" height="2.6" rx="1.3" fill="#2a4569"/><rect x="30" y="47" width="26" height="2.6" rx="1.3" fill="#2a4569"/><path d="M12 68 h72 l-6 8 h-60 z" stroke="#9CC3F0" stroke-width="2.5" fill="#16283f"/><path d="M62 44 l5 5 l9-10" stroke="#E8960C" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+  },
+  {
+    id: 3, name: 'Avanzado', num: 'Kit 3', badge: '',
+    price: '446,49', priceN: 446.49,
+    perfil: 'Para estudios exigentes: multitarea seria y software avanzado sin esperas.',
+    device: 'Portátil profesional reacondicionado (tipo HP EliteBook 840, i5 10.ª gen o superior, 16GB/256GB) con ratón, auriculares y mochila.',
+    chips: ['Portátil pro 16GB', 'Ratón', 'Auriculares', 'Mochila'],
+    uso: [
+      'Universidad y FP técnica: programación, diseño, análisis de datos',
+      'Software avanzado y muchas apps abiertas a la vez',
+      'Clases online largas con auriculares incluidos',
+      'Un equipo para toda la etapa: potencia de sobra para años'
+    ],
+    inc: [
+      'Portátil profesional i5 10.ª gen+ con 16GB revisado y certificado',
+      'Ratón + auriculares',
+      'Mochila para transportarlo',
+      'Verificación funcional + borrado certificado de datos',
+      'Configuración inicial lista para estudiar',
+      'Garantía incluida y devolución 30 días'
+    ],
+    lim: [
+      'No es un equipo gaming: los juegos exigentes no son lo suyo',
+      'Para 3D o edición de vídeo profesional intensiva se puede quedar corto',
+      'Signos leves de uso en la carcasa: por dentro, revisado a fondo'
+    ],
+    svg: `<svg viewBox="0 0 96 96" fill="none"><path d="M20 18 h56 v42 h-56 z" stroke="#9CC3F0" stroke-width="2.5"/><rect x="25" y="23" width="46" height="32" rx="1.5" fill="#1F3F66"/><path d="M32 38 l6-6 M32 38 l6 6" stroke="#3E7BD6" stroke-width="2.6" stroke-linecap="round"/><path d="M60 38 l-6-6 M60 38 l-6 6" stroke="#3E7BD6" stroke-width="2.6" stroke-linecap="round"/><path d="M49 29 l-4 18" stroke="#E8960C" stroke-width="2.6" stroke-linecap="round"/><path d="M12 66 h72 l-6 8 h-60 z" stroke="#9CC3F0" stroke-width="2.5" fill="#16283f"/><circle cx="82" cy="24" r="7" stroke="#E8960C" stroke-width="2.2"/><path d="M82 20 v4 l3 2" stroke="#E8960C" stroke-width="2" stroke-linecap="round"/></svg>`
+  }
+];
+
+/* ═══════════ RENDER KITS ═══════════ */
+function renderKits() {
+  const grid = document.getElementById('kgrid');
+  grid.innerHTML = '';
+  KITS.forEach(k => {
+    const c = document.createElement('div');
+    c.className = 'kcard rev';
+    c.id = 'kit' + k.id;
+    c.innerHTML = `
+      ${k.badge ? `<span class="kbadge">${k.badge}</span>` : ''}
+      <div class="kico">${k.svg}</div>
+      <div class="knum">${k.num}</div>
+      <div class="kname">${k.name}</div>
+      <p class="kperfil">${k.perfil}</p>
+      <div class="kprice">${k.price} €<small>IVA incluido</small></div>
+      <p class="kdevice">${k.device}</p>
+      <div class="kchips">${k.chips.map(ch => `<span class="kchip">${ch}</span>`).join('')}</div>
+      <div class="kbtns">
+        <button class="kbtn" data-ficha="${k.id}">Ver ficha</button>
+        <button class="kbtn solid" data-add="${k.id}">Añadir</button>
+      </div>`;
+    grid.appendChild(c);
+  });
+}
+
+/* ═══════════ MODAL FICHA ═══════════ */
+const kitModal = document.getElementById('kitModal');
+function openFicha(id) {
+  const k = KITS.find(x => x.id === id);
+  document.getElementById('kitModalBox').innerHTML = `
+    <button class="mclose" data-close>×</button>
+    <p class="mtag">${k.num} — ficha en cristiano</p>
+    <h3 class="mtitle">Kit ${k.name}</h3>
+    <div class="mprice">${k.price} € <small>IVA incluido · sin costes ocultos</small></div>
+    <div class="msec uso"><h4>Para qué sirve</h4><ul>${k.uso.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div class="msec inc"><h4>Qué incluye exactamente</h4><ul>${k.inc.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div class="msec lim"><h4>Qué NO esperar de él (honestamente)</h4><ul>${k.lim.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <p class="mnote">El modelo indicado es una referencia del nivel técnico: el stock reacondicionado varía, pero el rendimiento y la preparación del kit son siempre los descritos.</p>
+    <div class="mtrust">
+      <span>🛡️ Garantía incluida</span><span>↩️ Devolución 30 días</span><span>🔒 Borrado certificado</span>
+    </div>
+    <div class="mbtns">
+      <button class="kbtn" data-close>Volver</button>
+      <button class="kbtn solid" data-add="${k.id}" data-close>Añadir a la cesta →</button>
+    </div>`;
+  openModal(kitModal);
+}
+
+/* ═══════════ MODALES GENÉRICOS ═══════════ */
+function openModal(m) { m.classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModals() {
+  document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
+  if (!document.body.classList.contains('home')) document.body.style.overflow = '';
+}
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-close]')) closeModals();
+  if (e.target.classList.contains('modal')) closeModals();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModals(); });
+
+/* ═══════════ CESTA ═══════════ */
+let cart = [];
+const bagCount = document.getElementById('bagCount');
+function addToCart(id) {
+  cart.push(id);
+  bagCount.textContent = cart.length;
+  const k = KITS.find(x => x.id === id);
+  toast(`Kit ${k.name} añadido a la cesta ✦`);
+}
+function renderCart() {
+  const box = document.getElementById('cartLines');
+  if (!cart.length) { box.innerHTML = `<p class="cart-empty">Tu cesta está vacía. Los kits te esperan.</p>`; return; }
+  let total = 0;
+  box.innerHTML = cart.map((id, i) => {
+    const k = KITS.find(x => x.id === id); total += k.priceN;
+    return `<div class="cart-line"><b>${k.num} · ${k.name}</b>
+      <span><span class="cprice">${k.price} €</span><button class="cart-del" data-del="${i}" aria-label="Quitar">×</button></span></div>`;
+  }).join('') + `
+    <div class="cart-total"><span style="color:var(--white)">Total (IVA incluido)</span><span>${total.toFixed(2).replace('.', ',')} €</span></div>`;
+}
+document.getElementById('bagBtn').addEventListener('click', () => {
+  if (document.body.classList.contains('home')) { goMain('#kits'); setTimeout(() => { renderCart(); openModal(document.getElementById('cartModal')); }, 700); }
+  else { renderCart(); openModal(document.getElementById('cartModal')); }
+});
+document.addEventListener('click', e => {
+  const del = e.target.closest('[data-del]');
+  if (del) { cart.splice(+del.dataset.del, 1); bagCount.textContent = cart.length; renderCart(); }
+});
+document.getElementById('payBtn').addEventListener('click', () => {
+  if (!cart.length) { toast('La cesta está vacía 🙂'); return; }
+  closeModals();
+  toast('Demo: aquí iría el checkout de Shopify (tarjeta y wallets) ✦');
+});
+
+/* ═══════════ TOAST ═══════════ */
+let toastT;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ═══════════ SELECTOR GUIADO ═══════════ */
+const QUESTIONS = [
+  {
+    q: '¿Para qué se va a usar sobre todo?',
+    num: 'Pregunta 1 · Actividades',
+    opts: [
+      { emo:'📖', t:'Aula virtual, apuntes y contenidos', s:'Seguir las clases, leer, vídeos educativos', pts:[3,1,0], why:'Para aula virtual y contenidos no hace falta más equipo del necesario' },
+      { emo:'📝', t:'Trabajos, clases online y ofimática', s:'Redactar, presentaciones, videollamadas', pts:[0,3,1], why:'Los trabajos y la ofimática piden teclado y pantalla de portátil' },
+      { emo:'💻', t:'Programas avanzados y multitarea', s:'Programación, diseño, datos, muchas apps a la vez', pts:[0,1,3], why:'El software avanzado necesita la potencia extra del Avanzado' }
+    ]
+  },
+  {
+    q: '¿Se moverá mucho el equipo?',
+    num: 'Pregunta 2 · Movilidad',
+    opts: [
+      { emo:'🎒', t:'Va a todas partes, cada día', s:'Casa, clase, biblioteca, actividades…', pts:[3,1,0], why:'Cuanto más viaja, más se agradece un equipo ligero' },
+      { emo:'🚪', t:'Entre casa y clase, sin más', s:'Uso mixto normal', pts:[1,3,1], why:'Para uso mixto, el portátil con mochila acolchada es el punto justo' },
+      { emo:'🏠', t:'Casi siempre en el mismo sitio', s:'Escritorio fijo en casa', pts:[0,2,3], why:'Si apenas se mueve, compensa priorizar potencia sobre ligereza' }
+    ]
+  },
+  {
+    q: '¿Cuánta caña se le va a dar?',
+    num: 'Pregunta 3 · Exigencia técnica',
+    opts: [
+      { emo:'🌱', t:'Lo básico, sin florituras', s:'Nada de programas pesados', pts:[3,1,0], why:'Con uso básico, el Esencial cumple sin pagar de más' },
+      { emo:'⚖️', t:'Uso normal de estudiante', s:'Ofimática, navegador con pestañas, videollamadas', pts:[1,3,1], why:'El uso estándar de estudiante es justo el terreno del Completo' },
+      { emo:'🔥', t:'Exigente: que no se quede corto', s:'Software técnico, multitarea seria', pts:[0,1,3], why:'Para exigencia alta, los 16GB del Avanzado marcan la diferencia' }
+    ]
+  },
+  {
+    q: '¿Qué presupuesto tienes en mente?',
+    num: 'Pregunta 4 · Presupuesto',
+    opts: [
+      { emo:'💶', t:'Hasta unos 250 €', s:'Lo más ajustado posible', pts:[3,0,-2], why:'Encaja en tu presupuesto: precio final con IVA, sin sorpresas' },
+      { emo:'💳', t:'Entre 250 y 350 €', s:'Un término medio razonable', pts:[1,3,-1], why:'Entra de lleno en tu rango de precio, con IVA incluido' },
+      { emo:'🚀', t:'Más de 350 € si lo vale', s:'Prefiero que dure años', pts:[0,1,3], why:'Tu presupuesto permite el kit que más años de vida útil ofrece' }
+    ]
+  }
+];
+
+let selStep = 0, selScores = [0,0,0], selReasons = [];
+const selBox = document.getElementById('selBox');
+
+function renderSelector() {
+  if (selStep >= QUESTIONS.length) return renderResult();
+  const Q = QUESTIONS[selStep];
+  selBox.innerHTML = `
+    <div class="sel-progress">${QUESTIONS.map((_,i)=>`<i class="${i<=selStep?'on':''}"></i>`).join('')}</div>
+    <p class="sel-qnum">${Q.num} de 4</p>
+    <h3 class="sel-q">${Q.q}</h3>
+    <div class="sel-opts">
+      ${Q.opts.map((o,i)=>`
+        <button class="sopt" data-opt="${i}">
+          <span class="emo">${o.emo}</span>
+          <span><b>${o.t}</b><span class="sub">${o.s}</span></span>
+        </button>`).join('')}
+    </div>
+    ${selStep > 0 ? `<button class="sel-back" id="selBack">← Volver a la anterior</button>` : ''}`;
+  selBox.querySelectorAll('[data-opt]').forEach(btn => btn.addEventListener('click', () => {
+    const o = Q.opts[+btn.dataset.opt];
+    selScores = selScores.map((s,i) => s + o.pts[i]);
+    selReasons.push(o.why);
+    selStep++;
+    renderSelector();
+  }));
+  const back = document.getElementById('selBack');
+  if (back) back.addEventListener('click', () => {
+    selStep--;
+    const prev = QUESTIONS[selStep];
+    // deshacer la última respuesta
+    const lastWhy = selReasons.pop();
+    const lastOpt = prev.opts.find(o => o.why === lastWhy);
+    if (lastOpt) selScores = selScores.map((s,i) => s - lastOpt.pts[i]);
+    renderSelector();
+  });
+  hookCursor();
+}
+
+function renderResult() {
+  let best = 0;
+  selScores.forEach((s,i) => { if (s > selScores[best]) best = i; });
+  const k = KITS[best];
+  selBox.innerHTML = `
+    <div class="sel-progress">${QUESTIONS.map(()=>'<i class="on"></i>').join('')}</div>
+    <div class="sel-result">
+      <p class="rtag">Tu kit es…</p>
+      <h3 class="rname">Kit ${k.name} <span style="color:var(--amber)">✦</span></h3>
+      <div class="rprice">${k.price} € <small>IVA incluido</small></div>
+      <ul class="rwhy">${selReasons.map(r=>`<li>${r}</li>`).join('')}</ul>
+      <div class="rbtns">
+        <button class="kbtn" style="flex:none; padding:14px 22px" data-ficha="${k.id}">Ver la ficha</button>
+        <button class="kbtn solid" style="flex:none; padding:14px 22px" id="goKit">Llévame al kit →</button>
+        <button class="kbtn" style="flex:none; padding:14px 22px" id="selRetry">Repetir test</button>
+      </div>
+    </div>`;
+  // resaltar el kit recomendado
+  document.querySelectorAll('.kcard').forEach(c => c.classList.remove('reco'));
+  const card = document.getElementById('kit' + k.id);
+  card.classList.add('reco');
+  document.getElementById('goKit').addEventListener('click', () => {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  document.getElementById('selRetry').addEventListener('click', resetSelector);
+  hookCursor();
+}
+function resetSelector() {
+  selStep = 0; selScores = [0,0,0]; selReasons = [];
+  document.querySelectorAll('.kcard').forEach(c => c.classList.remove('reco'));
+  renderSelector();
+}
+
+/* ═══════════ B2B FORM ═══════════ */
+document.getElementById('b2bSend').addEventListener('click', () => {
+  const ent = document.getElementById('f-ent').value.trim();
+  const uds = document.getElementById('f-uds').value.trim();
+  const mail = document.getElementById('f-mail').value.trim();
+  if (!ent || !uds || !mail || !mail.includes('@')) {
+    toast('Faltan datos: entidad, unidades y un email válido 🙂');
+    return;
+  }
+  document.getElementById('b2bFields').style.display = 'none';
+  document.getElementById('b2bOk').classList.add('show');
+});
+
+/* ═══════════ APADRINA ═══════════ */
+document.getElementById('apaBtn').addEventListener('click', () => openModal(document.getElementById('apaModal')));
+
+/* ═══════════ NAVEGACIÓN HOME ⇄ MAIN ═══════════ */
+const wipe = document.getElementById('wipe');
+function goMain(target) {
+  wipe.classList.add('on');
+  setTimeout(() => {
+    document.body.classList.remove('home', 'locked');
+    document.body.style.overflow = '';
+    const html = document.documentElement;
+    html.style.scrollBehavior = 'auto';
+    const el = target ? document.querySelector(target) : null;
+    if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' });
+    else window.scrollTo(0, 0);
+    requestAnimationFrame(() => {
+      html.style.scrollBehavior = '';
+      wipe.classList.remove('on');
+      revealObserve();
+    });
+  }, 520);
+}
+function goHome() {
+  wipe.classList.add('on');
+  setTimeout(() => {
+    const html = document.documentElement;
+    html.style.scrollBehavior = 'auto';
+    document.body.classList.add('home', 'locked');
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => { html.style.scrollBehavior = ''; });
+    wipe.classList.remove('on');
+  }, 520);
+}
+document.addEventListener('click', e => {
+  const go = e.target.closest('[data-go]');
+  if (!go) return;
+  e.preventDefault();
+  closeBurger();
+  const target = go.dataset.target || go.getAttribute('href');
+  if (document.body.classList.contains('home')) goMain(target);
+  else {
+    const el = document.querySelector(target);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+document.getElementById('logoHome').addEventListener('click', e => {
+  e.preventDefault();
+  if (!document.body.classList.contains('home')) goHome();
+});
+document.getElementById('shopHere').addEventListener('click', () => goMain('#kits'));
+
+/* ═══════════ BURGER ═══════════ */
+const burger = document.getElementById('burger');
+const mmenu  = document.getElementById('mmenu');
+burger.addEventListener('click', () => {
+  const open = burger.classList.toggle('open');
+  mmenu.classList.toggle('open', open);
+});
+function closeBurger() {
+  burger.classList.remove('open');
+  mmenu.classList.remove('open');
+}
+
+/* ═══════════ NAVBAR SCROLL ═══════════ */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40 && !document.body.classList.contains('home'));
+}, { passive: true });
+
+/* ═══════════ CTA LETRA A LETRA ═══════════ */
+const sh = document.getElementById('shopHere');
+sh.innerHTML = sh.textContent.trim().split('').map((c, i) =>
+  c === ' ' ? `<span class="sp"></span>`
+            : `<span class="ch" style="transition-delay:${i * 40}ms">${c}</span>`
+).join('');
+
+/* ═══════════ CURSOR CUSTOM ═══════════ */
+const dot = document.getElementById('curDot');
+const ring = document.getElementById('curRing');
+let mx = -100, my = -100, rx = -100, ry = -100;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+});
+(function follow() {
+  rx += (mx - rx) * .16; ry += (my - ry) * .16;
+  ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+  requestAnimationFrame(follow);
+})();
+function hookCursor() {
+  document.querySelectorAll('a, button, label, .kcard').forEach(el => {
+    if (el.dataset.curHooked) return;
+    el.dataset.curHooked = '1';
+    el.addEventListener('mouseenter', () => ring.classList.add('big'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('big'));
+  });
+}
+
+/* ═══════════ PARALLAX BLOBS ═══════════ */
+if (matchMedia('(pointer: fine)').matches) {
+  document.addEventListener('mousemove', e => {
+    if (!document.body.classList.contains('home')) return;
+    const dx = (e.clientX / innerWidth  - .5) * 18;
+    const dy = (e.clientY / innerHeight - .5) * 18;
+    document.querySelectorAll('.blob').forEach((b, i) => {
+      const f = (i % 2 ? -1 : 1) * (1 + i * .3);
+      b.style.marginLeft = (dx * f) + 'px';
+      b.style.marginTop  = (dy * f) + 'px';
+    });
+  });
+}
+
+/* ═══════════ SCROLL REVEAL ═══════════ */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach((en, i) => {
+    if (en.isIntersecting) {
+      en.target.style.transitionDelay = `${(i % 4) * 80}ms`;
+      en.target.classList.add('in');
+      observer.unobserve(en.target);
+    }
+  });
+}, { threshold: .1 });
+function revealObserve() {
+  document.querySelectorAll('.rev:not(.in)').forEach(el => observer.observe(el));
+}
+
+/* ═══════════ FICHAS / AÑADIR (delegado) ═══════════ */
+document.addEventListener('click', e => {
+  const f = e.target.closest('[data-ficha]');
+  if (f) { openFicha(+f.dataset.ficha); return; }
+  const a = e.target.closest('[data-add]');
+  if (a) addToCart(+a.dataset.add);
+});
+
+/* ═══════════ LOADER + INIT ═══════════ */
+renderKits();
+renderSelector();
+hookCursor();
+
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('out');
+    document.body.classList.add('ready');
+    setTimeout(() => document.getElementById('loader').remove(), 1000);
+  }, 1300);
+});
+</script>
+</body>
+</html>
