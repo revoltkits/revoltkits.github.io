@@ -349,10 +349,29 @@
   .fok h4 { font-family: var(--sf); font-size: 24px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
   .fok p { font-size: 15px; color: var(--ink2); line-height: 1.5; }
 
-  /* ── APADRINA (banda oscura) ─────────────── */
-  #apadrina { background: var(--grad-deep); color: #fff; text-align: center; }
-  #apadrina .a-title { color: #fff; }
-  .apa-copy { max-width: 580px; margin: 16px auto 28px; font-size: 19px; color: #a1a1a6; line-height: 1.5; }
+  /* ── APADRINA (imagen de fondo) ──────────── */
+  #apadrina {
+    background:
+      linear-gradient(90deg, #eef3f9 0%, rgba(238,243,249,.94) 26%, rgba(238,243,249,.55) 48%, rgba(238,243,249,0) 68%),
+      url('img/apadrina.png') right center / cover no-repeat, #eef3f9;
+    color: var(--ink); text-align: left;
+    min-height: 540px; display: flex; align-items: center;
+  }
+  #apadrina .a-in { width: 100%; }
+  #apadrina .a-title { color: var(--ink); text-align: left; }
+  .apa-copy { max-width: 440px; margin: 16px 0 28px; font-size: 19px; color: var(--ink2); line-height: 1.5; text-align: left; }
+  .apa-cta { text-align: left; }
+  @media (max-width: 719px) {
+    #apadrina {
+      background:
+        linear-gradient(180deg, rgba(238,243,249,.9) 0%, rgba(238,243,249,.7) 55%, rgba(238,243,249,.5) 100%),
+        url('img/apadrina.png') center 78% / cover no-repeat, #eef3f9;
+      text-align: center; min-height: 640px;
+    }
+    #apadrina .a-title { text-align: center; }
+    .apa-copy { text-align: center; margin-left: auto; margin-right: auto; }
+    .apa-cta { text-align: center; }
+  }
 
   /* ── FOOTER ─────────────────────────────── */
   footer { background: var(--agray); border-top: 1px solid var(--aline); padding: 40px 22px 30px; }
@@ -577,7 +596,7 @@
     <div class="a-in">
       <h2 class="a-title rev">Apadrina un kit.</h2>
       <p class="apa-copy rev">Hay estudiantes que siguen las clases desde el móvil de sus padres. Por lo que cuesta un kit, uno de ellos recibe un equipo completo, revisado y listo — a través de centros y entidades sociales colaboradoras.</p>
-      <div class="rev" style="text-align:center"><button class="pill" id="apaBtn">Quiero apadrinar</button></div>
+      <div class="rev apa-cta"><button class="pill" id="apaBtn">Quiero apadrinar</button></div>
     </div>
   </section>
 
