@@ -276,7 +276,9 @@
     font-family: var(--sf); font-size: 16px; transition: border-color .2s, transform .2s;
   }
   .sopt:hover { border-color: var(--ablue); transform: translateX(4px); }
-  .sopt .emo { font-size: 24px; flex-shrink: 0; }
+  .sopt > span:first-child { flex: 1; }
+  .sopt-arrow { color: var(--ink3); font-size: 22px; line-height: 1; flex-shrink: 0; transition: color .2s, transform .2s; }
+  .sopt:hover .sopt-arrow { color: var(--ablue); transform: translateX(3px); }
   .sopt b { display: block; font-size: 16px; font-weight: 600; }
   .sopt span.sub { display: block; font-size: 13px; color: var(--ink2); }
   .sel-back { margin-top: 18px; background: none; border: none; color: var(--ink2); font-size: 14px; cursor: pointer; }
@@ -296,7 +298,8 @@
   @media (min-width: 600px) { .tgrid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 980px) { .tgrid { grid-template-columns: repeat(4, 1fr); } }
   .tcard { background: #fff; border-radius: 18px; padding: 30px 24px; text-align: center; }
-  .tcard .emo { font-size: 32px; margin-bottom: 16px; display: block; }
+  .tcard .tico { display: flex; justify-content: center; margin-bottom: 18px; color: var(--ablue); }
+  .tcard .tico svg { width: 40px; height: 40px; }
   .tcard-t { font-family: var(--sf); font-size: 19px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); margin-bottom: 8px; }
   .tcard-d { font-size: 14px; line-height: 1.5; color: var(--ink2); }
   .steps { max-width: 760px; margin: 72px auto 0; }
@@ -345,7 +348,8 @@
   .fsubmit:hover { background: #0077ed; }
   .fok { display: none; text-align: center; padding: 40px 10px; }
   .fok.show { display: block; }
-  .fok .emo { font-size: 44px; display: block; margin-bottom: 14px; }
+  .fok-ico { display: flex; justify-content: center; margin-bottom: 16px; color: #29963f; }
+  .fok-ico svg { width: 46px; height: 46px; }
   .fok h4 { font-family: var(--sf); font-size: 24px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
   .fok p { font-size: 15px; color: var(--ink2); line-height: 1.5; }
 
@@ -530,10 +534,10 @@
       <p class="a-sub muted rev">Todo lo que da respeto de la segunda mano, resuelto y por escrito.</p>
 
       <div class="tgrid">
-        <div class="tcard rev"><span class="emo">🛡️</span><div class="tcard-t">Garantía incluida</div><p class="tcard-d">Todos los kits salen con garantía legal de reacondicionado. Si algo falla, lo reparamos o lo cambiamos.</p></div>
-        <div class="tcard rev"><span class="emo">↩️</span><div class="tcard-t">Devolución 30 días</div><p class="tcard-d">Un mes entero para probarlo en el día a día real. Si no convence, lo devuelves y te devolvemos el dinero.</p></div>
-        <div class="tcard rev"><span class="emo">🔒</span><div class="tcard-t">Borrado certificado</div><p class="tcard-d">Cada equipo pasa un borrado seguro de datos certificado. No queda nada del usuario anterior. Nada.</p></div>
-        <div class="tcard rev"><span class="emo">📦</span><div class="tcard-t">Listo para usar</div><p class="tcard-d">Configuración inicial incluida: se enciende y se empieza a estudiar. Sin instalar nada.</p></div>
+        <div class="tcard rev"><span class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg></span><div class="tcard-t">Garantía incluida</div><p class="tcard-d">Todos los kits salen con garantía legal de reacondicionado. Si algo falla, lo reparamos o lo cambiamos.</p></div>
+        <div class="tcard rev"><span class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 4 3 9 8 9"/><path d="M3.5 9a9 9 0 1 1 .2 6.5"/></svg></span><div class="tcard-t">Devolución 30 días</div><p class="tcard-d">Un mes entero para probarlo en el día a día real. Si no convence, lo devuelves y te devolvemos el dinero.</p></div>
+        <div class="tcard rev"><span class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><div class="tcard-t">Borrado certificado</div><p class="tcard-d">Cada equipo pasa un borrado seguro de datos certificado. No queda nada del usuario anterior. Nada.</p></div>
+        <div class="tcard rev"><span class="tico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M4 7.5l8 4.5 8-4.5"/><path d="M12 12v9"/></svg></span><div class="tcard-t">Listo para usar</div><p class="tcard-d">Configuración inicial incluida: se enciende y se empieza a estudiar. Sin instalar nada.</p></div>
       </div>
 
       <div class="steps rev">
@@ -583,7 +587,7 @@
           <button class="fsubmit" id="b2bSend">Pedir presupuesto</button>
         </div>
         <div class="fok" id="b2bOk">
-          <span class="emo">📬</span>
+          <span class="fok-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span>
           <h4>¡Recibido!</h4>
           <p>Gracias. Te enviaremos el presupuesto detallado en un máximo de <b>48 h laborables</b> al correo indicado.<br><br><em>(Prototipo: el envío es simulado.)</em></p>
         </div>
@@ -777,7 +781,7 @@ function openFicha(id) {
     <div class="msec inc"><h4>Qué incluye exactamente</h4><ul>${k.inc.map(x=>`<li>${x}</li>`).join('')}</ul></div>
     <div class="msec lim"><h4>Qué no esperar de él (honestamente)</h4><ul>${k.lim.map(x=>`<li>${x}</li>`).join('')}</ul></div>
     <p class="mnote">El modelo indicado es una referencia del nivel técnico: el stock reacondicionado varía, pero el rendimiento y la preparación del kit son siempre los descritos.</p>
-    <div class="mtrust"><span>🛡️ Garantía incluida</span><span>↩️ Devolución 30 días</span><span>🔒 Borrado certificado</span></div>
+    <div class="mtrust"><span>Garantía incluida</span><span>Devolución 30 días</span><span>Borrado certificado</span></div>
     <div class="mbtns">
       <button class="kbtn" data-close>Volver</button>
       <button class="kbtn solid" data-add="${k.id}" data-close>Añadir a la cesta</button>
@@ -843,33 +847,33 @@ const QUESTIONS = [
   {
     q: '¿Para qué se va a usar sobre todo?', num: 'Pregunta 1 · Actividades',
     opts: [
-      { emo:'📖', t:'Aula virtual, apuntes y contenidos', s:'Seguir las clases, leer, vídeos educativos', pts:[3,1,0], why:'Para aula virtual y contenidos no hace falta más equipo del necesario' },
-      { emo:'📝', t:'Trabajos, clases online y ofimática', s:'Redactar, presentaciones, videollamadas', pts:[0,3,1], why:'Los trabajos y la ofimática piden teclado y pantalla de portátil' },
-      { emo:'💻', t:'Programas avanzados y multitarea', s:'Programación, diseño, datos, muchas apps a la vez', pts:[0,1,3], why:'El software avanzado necesita la potencia extra del Avanzado' }
+      { t:'Aula virtual, apuntes y contenidos', s:'Seguir las clases, leer, vídeos educativos', pts:[3,1,0], why:'Para aula virtual y contenidos no hace falta más equipo del necesario' },
+      { t:'Trabajos, clases online y ofimática', s:'Redactar, presentaciones, videollamadas', pts:[0,3,1], why:'Los trabajos y la ofimática piden teclado y pantalla de portátil' },
+      { t:'Programas avanzados y multitarea', s:'Programación, diseño, datos, muchas apps a la vez', pts:[0,1,3], why:'El software avanzado necesita la potencia extra del Avanzado' }
     ]
   },
   {
     q: '¿Se moverá mucho el equipo?', num: 'Pregunta 2 · Movilidad',
     opts: [
-      { emo:'🎒', t:'Va a todas partes, cada día', s:'Casa, clase, biblioteca, actividades…', pts:[3,1,0], why:'Cuanto más viaja, más se agradece un equipo ligero' },
-      { emo:'🚪', t:'Entre casa y clase, sin más', s:'Uso mixto normal', pts:[1,3,1], why:'Para uso mixto, el portátil con mochila acolchada es el punto justo' },
-      { emo:'🏠', t:'Casi siempre en el mismo sitio', s:'Escritorio fijo en casa', pts:[0,2,3], why:'Si apenas se mueve, compensa priorizar potencia sobre ligereza' }
+      { t:'Va a todas partes, cada día', s:'Casa, clase, biblioteca, actividades…', pts:[3,1,0], why:'Cuanto más viaja, más se agradece un equipo ligero' },
+      { t:'Entre casa y clase, sin más', s:'Uso mixto normal', pts:[1,3,1], why:'Para uso mixto, el portátil con mochila acolchada es el punto justo' },
+      { t:'Casi siempre en el mismo sitio', s:'Escritorio fijo en casa', pts:[0,2,3], why:'Si apenas se mueve, compensa priorizar potencia sobre ligereza' }
     ]
   },
   {
     q: '¿Cuánta caña se le va a dar?', num: 'Pregunta 3 · Exigencia técnica',
     opts: [
-      { emo:'🌱', t:'Lo básico, sin florituras', s:'Nada de programas pesados', pts:[3,1,0], why:'Con uso básico, el Esencial cumple sin pagar de más' },
-      { emo:'⚖️', t:'Uso normal de estudiante', s:'Ofimática, navegador con pestañas, videollamadas', pts:[1,3,1], why:'El uso estándar de estudiante es justo el terreno del Completo' },
-      { emo:'🔥', t:'Exigente: que no se quede corto', s:'Software técnico, multitarea seria', pts:[0,1,3], why:'Para exigencia alta, los 16GB del Avanzado marcan la diferencia' }
+      { t:'Lo básico, sin florituras', s:'Nada de programas pesados', pts:[3,1,0], why:'Con uso básico, el Esencial cumple sin pagar de más' },
+      { t:'Uso normal de estudiante', s:'Ofimática, navegador con pestañas, videollamadas', pts:[1,3,1], why:'El uso estándar de estudiante es justo el terreno del Completo' },
+      { t:'Exigente: que no se quede corto', s:'Software técnico, multitarea seria', pts:[0,1,3], why:'Para exigencia alta, los 16GB del Avanzado marcan la diferencia' }
     ]
   },
   {
     q: '¿Qué presupuesto tienes en mente?', num: 'Pregunta 4 · Presupuesto',
     opts: [
-      { emo:'💶', t:'Hasta unos 250 €', s:'Lo más ajustado posible', pts:[3,0,-2], why:'Encaja en tu presupuesto: precio final con IVA, sin sorpresas' },
-      { emo:'💳', t:'Entre 250 y 350 €', s:'Un término medio razonable', pts:[1,3,-1], why:'Entra de lleno en tu rango de precio, con IVA incluido' },
-      { emo:'🚀', t:'Más de 350 € si lo vale', s:'Prefiero que dure años', pts:[0,1,3], why:'Tu presupuesto permite el kit que más años de vida útil ofrece' }
+      { t:'Hasta unos 250 €', s:'Lo más ajustado posible', pts:[3,0,-2], why:'Encaja en tu presupuesto: precio final con IVA, sin sorpresas' },
+      { t:'Entre 250 y 350 €', s:'Un término medio razonable', pts:[1,3,-1], why:'Entra de lleno en tu rango de precio, con IVA incluido' },
+      { t:'Más de 350 € si lo vale', s:'Prefiero que dure años', pts:[0,1,3], why:'Tu presupuesto permite el kit que más años de vida útil ofrece' }
     ]
   }
 ];
@@ -887,8 +891,8 @@ function renderSelector() {
     <div class="sel-opts">
       ${Q.opts.map((o,i)=>`
         <button class="sopt" data-opt="${i}">
-          <span class="emo">${o.emo}</span>
           <span><b>${o.t}</b><span class="sub">${o.s}</span></span>
+          <span class="sopt-arrow" aria-hidden="true">›</span>
         </button>`).join('')}
     </div>
     ${selStep > 0 ? `<button class="sel-back" id="selBack">← Volver a la anterior</button>` : ''}`;
