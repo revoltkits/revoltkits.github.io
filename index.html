@@ -4,47 +4,46 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReVolt — Kits digitales educativos reacondicionados</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:     #101f33;   /* navy profundo (base #1F3F66 oscurecido) */
+    /* portada (se mantiene oscura) */
+    --bg:     #101f33;
     --bg2:    #16283f;
-    --bg3:    #1F3F66;   /* azul corporativo */
     --line:   #2a4569;
     --blue:   #3E7BD6;
     --sky:    #9CC3F0;
     --amber:  #E8960C;
-    --paper:  #F4F7FB;
     --white:  #ffffff;
     --gray:   #7d94b5;
-    --nav-h:  64px;
     --disp: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', 'Arial Black', sans-serif;
     --round: 'Arial Rounded MT Bold', 'Baloo 2', 'Verdana Pro Black', -apple-system, sans-serif;
-    --body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-    --dot:  'Doto', ui-monospace, monospace;
-    --mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-    --paper2: #f4f3ef;
-    --ink2:   #111111;
+    /* estilo Apple (secciones) */
+    --sf: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --ink:  #1d1d1f;
+    --ink2: #6e6e73;
+    --ink3: #86868b;
+    --ablue: #0071e3;
+    --alink: #0066cc;
+    --agray: #f5f5f7;
+    --aline: #d2d2d7;
+    --nav-h: 52px;
   }
 
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; scroll-padding-top: 52px; }
   body {
-    background: var(--bg); color: var(--white);
-    font-family: var(--body); font-size: 15px; line-height: 1.6;
-    overflow-x: hidden;
+    background: #fff; color: var(--ink);
+    font-family: var(--sf); font-size: 17px; line-height: 1.47;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
-  body.locked { overflow: hidden; height: 100svh; }
 
   /* ── WORDMARK ────────────────────────────── */
   .wordmark {
     font-family: var(--round); font-weight: 800;
     text-transform: lowercase; letter-spacing: -0.02em;
     transform: skewX(-8deg); display: inline-block;
-    color: var(--white); text-decoration: none;
+    color: currentColor; text-decoration: none;
   }
   .wordmark .star { display: inline-block; transform: scale(.82); color: var(--amber); }
 
@@ -68,115 +67,86 @@
   #loader.out #loader-mark { opacity: 0; animation: none; }
   @keyframes markpulse { 0%,100%{opacity:.35} 50%{opacity:1} }
 
-  /* ── TRANSICION (WIPE) ───────────────────── */
-  #wipe {
-    position: fixed; inset: 0; background: var(--bg); z-index: 9800;
-    transform: scaleY(0); transform-origin: bottom; pointer-events: none;
-    transition: transform .5s cubic-bezier(.77,0,.175,1);
-  }
-  #wipe.on { transform: scaleY(1); }
-
-  /* ── NAVBAR ─────────────────────────────── */
+  /* ── NAVBAR (estilo Apple) ────────────────── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h);
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 22px; z-index: 950;
-    transition: background .3s, backdrop-filter .3s;
+    padding: 0 22px; z-index: 950; color: #fff;
+    transition: background .4s ease, backdrop-filter .4s ease, color .4s ease, border-color .4s ease;
+    border-bottom: 1px solid transparent;
   }
-  nav.scrolled { background: rgba(16,31,51,.88); backdrop-filter: blur(14px); }
-  .nav-logo { position: absolute; left: 50%; transform: translateX(-50%) skewX(-8deg); font-size: 26px; }
+  nav.scrolled {
+    background: rgba(255,255,255,.72); backdrop-filter: saturate(180%) blur(20px);
+    color: var(--ink); border-bottom-color: rgba(0,0,0,.1);
+  }
+  .nav-logo { font-size: 24px; position: relative; z-index: 2; }
+
+  .nav-links { display: none; position: absolute; left: 50%; transform: translateX(-50%); gap: 30px; }
+  .nav-links a {
+    font-family: var(--sf); font-size: 14px; color: currentColor;
+    text-decoration: none; opacity: .88; transition: opacity .2s;
+  }
+  .nav-links a:hover { opacity: 1; }
   @media (min-width: 900px) {
-    nav { padding: 0 44px; height: 80px; }
-    body.home nav .nav-logo { position: static; transform: skewX(-8deg); font-size: 30px; }
-    body.home nav .burger { display: none !important; }
+    nav { height: 56px; padding: 0 40px; }
+    .nav-links { display: flex; }
+    .burger { display: none !important; }
   }
 
   .bag {
-    font-family: var(--disp); font-size: 16px; letter-spacing: .06em;
-    color: var(--white); text-decoration: none; position: relative;
-    background: none; border: none;
+    font-family: var(--sf); font-size: 14px; letter-spacing: .01em;
+    color: currentColor; text-decoration: none; position: relative;
+    background: none; border: none; cursor: pointer; z-index: 2;
   }
-  .bag sup { font-size: 10px; position: relative; top: -7px; left: 2px; color: var(--amber); }
+  .bag sup { font-size: 10px; position: relative; top: -7px; left: 2px; color: var(--ablue); font-weight: 600; }
 
   .burger {
     background: none; border: none; cursor: pointer;
     display: flex; flex-direction: column; gap: 5px; padding: 6px; z-index: 1001;
   }
-  .burger span { display: block; width: 24px; height: 2px; background: var(--white); transition: .3s ease; }
+  .burger span { display: block; width: 22px; height: 2px; background: currentColor; transition: .3s ease; }
   .burger.open span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
   .burger.open span:nth-child(2) { opacity: 0; }
   .burger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
 
-  /* ── MENU FULLSCREEN ─────────────────────── */
+  /* ── MENU FULLSCREEN (móvil) ─────────────── */
   #mmenu {
-    position: fixed; inset: 0; background: var(--bg); z-index: 900;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center; gap: 26px;
-    transform: translateX(-100%);
-    transition: transform .42s cubic-bezier(.77,0,.175,1);
+    position: fixed; inset: 0; background: rgba(255,255,255,.98); backdrop-filter: blur(20px);
+    z-index: 900; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px;
+    transform: translateX(100%); transition: transform .42s cubic-bezier(.77,0,.175,1);
   }
   #mmenu.open { transform: translateX(0); }
   .mlink {
-    font-family: var(--disp);
-    font-size: clamp(30px, 8vw, 50px);
-    letter-spacing: .08em; text-transform: uppercase;
-    color: var(--white); text-decoration: none; transition: opacity .2s;
-    background: none; border: none;
+    font-family: var(--sf); font-size: 30px; font-weight: 600; letter-spacing: -.01em;
+    color: var(--ink); text-decoration: none; transition: color .2s;
+    background: none; border: none; cursor: pointer; padding: 12px;
   }
-  .mlink:hover { opacity: .4; }
-  .msocial { display: flex; gap: 24px; margin-top: 10px; }
-  .msocial a { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--gray); text-decoration: none; }
-  .msocial a:hover { color: var(--white); }
+  .mlink:hover { color: var(--ablue); }
+  .msocial { display: flex; gap: 24px; margin-top: 18px; }
+  .msocial a { font-size: 13px; color: var(--alink); text-decoration: none; }
 
-  /* ── LINKS LATERALES (desktop, home) ─────── */
-  .side-links {
-    display: none;
-    position: fixed; left: 44px; bottom: 56px; z-index: 700;
-    flex-direction: column; gap: 10px;
-  }
-  body.home.ready .side-links { display: flex; }
-  @media (max-width: 899px) { body.home.ready .side-links { display: none; } }
-  .side-links a {
-    font-family: var(--disp); font-size: 20px;
-    letter-spacing: .05em; text-transform: uppercase;
-    color: var(--white); text-decoration: none;
-    width: fit-content; transition: opacity .2s, transform .25s ease;
-    opacity: 0; transform: translateY(16px);
-  }
-  body.ready .side-links a { opacity: 1; transform: translateY(0); }
-  .side-links a:hover { opacity: .5 !important; transform: translateX(6px); }
-
-  /* ── HOME (HERO) ─────────────────────────── */
+  /* ── HERO (portada, se mantiene) ─────────── */
   #view-home {
     position: relative; height: 100svh;
     display: flex; align-items: center; justify-content: center;
-    flex-direction: column; overflow: hidden;
+    flex-direction: column; overflow: hidden; background: var(--bg);
   }
-  body:not(.home) #view-home { display: none; }
-  body.home #view-main { display: none; }
-
-  /* video de fondo (como eleven) */
   #hero-video {
     position: absolute; inset: -3%; width: 106%; height: 106%; object-fit: cover;
     will-change: transform;
   }
   #hero-over { position: absolute; inset: 0; background: rgba(10,19,33,.22); }
-
-  /* grano de película */
   .grain {
     position: absolute; inset: -100px; pointer-events: none; opacity: .07; z-index: 5;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
     animation: grain 8s steps(10) infinite;
   }
   @keyframes grain {
-    0%,100% { transform: translate(0,0) }
-    10% { transform: translate(-24px,18px) }
-    30% { transform: translate(18px,-30px) }
-    50% { transform: translate(-30px,-12px) }
-    70% { transform: translate(24px,24px) }
-    90% { transform: translate(-12px,30px) }
+    0%,100% { transform: translate(0,0) } 10% { transform: translate(-24px,18px) }
+    30% { transform: translate(18px,-30px) } 50% { transform: translate(-30px,-12px) }
+    70% { transform: translate(24px,24px) } 90% { transform: translate(-12px,30px) }
   }
-
   .hero-eyebrow {
     position: relative; z-index: 10;
     font-size: 11px; font-weight: 700; letter-spacing: .3em; text-transform: uppercase;
@@ -184,25 +154,17 @@
     opacity: 0; transform: translateY(14px); transition: opacity .8s ease .5s, transform .8s ease .5s;
   }
   body.ready .hero-eyebrow { opacity: 1; transform: translateY(0); }
-
-  /* CTA letra a letra */
   .shop-here {
     position: relative; z-index: 10;
-    font-family: var(--disp);
-    font-size: clamp(38px, 8.4vw, 76px);
+    font-family: var(--disp); font-size: clamp(38px, 8.4vw, 76px);
     letter-spacing: .02em; text-transform: uppercase;
-    color: var(--white); text-decoration: none; background: none; border: none;
+    color: var(--white); text-decoration: none; background: none; border: none; cursor: pointer;
     display: flex; gap: .04em; overflow: hidden; padding: .08em .1em;
   }
-  .shop-here .ch {
-    display: inline-block;
-    transform: translateY(115%);
-    transition: transform .7s cubic-bezier(.19,1,.22,1);
-  }
+  .shop-here .ch { display: inline-block; transform: translateY(115%); transition: transform .7s cubic-bezier(.19,1,.22,1); }
   .shop-here .sp { width: .35em; }
   body.ready .shop-here .ch { transform: translateY(0); }
   .shop-here:hover .ch { transform: translateY(-6%) skewX(-8deg); color: var(--amber); }
-
   .hero-sub {
     position: relative; z-index: 10; margin-top: 20px; max-width: 520px;
     text-align: center; font-size: 14px; color: rgba(244,247,251,.75); padding: 0 24px;
@@ -210,7 +172,6 @@
   }
   body.ready .hero-sub { opacity: 1; transform: translateY(0); }
   .hero-sub strong { color: var(--white); }
-
   .hero-badges {
     position: relative; z-index: 10; margin-top: 26px;
     display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; padding: 0 20px;
@@ -219,381 +180,242 @@
   body.ready .hero-badges { opacity: 1; }
   .hbadge {
     font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--sky); border: 1px solid rgba(156,195,240,.35);
-    padding: 7px 14px; border-radius: 100px;
+    color: var(--sky); border: 1px solid rgba(156,195,240,.35); padding: 7px 14px; border-radius: 100px;
   }
-
-  /* ── VISTA PRINCIPAL ─────────────────────── */
-  #view-main { padding-top: var(--nav-h); }
-  @media (min-width: 900px) { #view-main { padding-top: 80px; } }
-
-  /* ticker */
-  .ticker {
-    background: var(--amber); color: #221503;
-    font-family: var(--disp); font-size: 11px;
-    letter-spacing: .18em; text-transform: uppercase;
-    padding: 11px 0; overflow: hidden; white-space: nowrap;
+  .scroll-hint {
+    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+    z-index: 10; color: rgba(255,255,255,.6); font-size: 22px;
+    opacity: 0; animation: bob 1.8s ease-in-out infinite; transition: opacity .8s ease 1.5s;
   }
-  .ticker-track { display: inline-block; animation: tick 26s linear infinite; }
-  .ticker-track span { padding: 0 32px; }
-  @keyframes tick { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+  body.ready .scroll-hint { opacity: 1; }
+  @keyframes bob { 0%,100%{ transform: translateX(-50%) translateY(0) } 50%{ transform: translateX(-50%) translateY(8px) } }
 
-  section { padding: 72px 20px; max-width: 1200px; margin: 0 auto; }
-  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px; flex-wrap: wrap; }
-  .sec-title {
-    font-family: var(--disp);
-    font-size: clamp(26px, 6vw, 48px);
-    letter-spacing: .05em; text-transform: uppercase;
+  /* ── APPLE: helpers de sección ───────────── */
+  .a-sec { padding: 90px 22px; }
+  .a-in { max-width: 980px; margin: 0 auto; }
+  .a-title {
+    font-family: var(--sf); font-size: clamp(32px, 5vw, 56px); font-weight: 600;
+    letter-spacing: -.015em; line-height: 1.05; color: var(--ink); text-align: center;
   }
-  .sec-count { font-size: 11px; color: var(--gray); letter-spacing: .1em; text-transform: uppercase; }
-  .sec-intro { max-width: 640px; color: rgba(244,247,251,.72); font-size: 14.5px; margin-bottom: 40px; }
-  .sec-intro strong { color: var(--white); }
+  .a-sub {
+    font-size: clamp(19px, 2.4vw, 28px); font-weight: 400; color: var(--ink);
+    text-align: center; max-width: 700px; margin: 10px auto 0; line-height: 1.3;
+  }
+  .a-sub.muted { color: var(--ink2); }
+  .pill {
+    display: inline-block; font-family: var(--sf); font-size: 17px; font-weight: 400;
+    background: var(--ablue); color: #fff; border: none; cursor: pointer;
+    padding: 12px 24px; border-radius: 980px; text-decoration: none; transition: background .2s;
+  }
+  .pill:hover { background: #0077ed; }
+  .plink {
+    font-family: var(--sf); font-size: 17px; color: var(--alink);
+    background: none; border: none; cursor: pointer; text-decoration: none;
+  }
+  .plink:hover { text-decoration: underline; }
 
   /* reveal on scroll */
-  .rev { opacity: 0; transform: translateY(26px); transition: opacity .6s ease, transform .6s cubic-bezier(.19,1,.22,1); }
+  .rev { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.19,1,.22,1); }
   .rev.in { opacity: 1; transform: translateY(0); }
 
   /* ── KITS ────────────────────────────────── */
-  .kgrid { display: grid; grid-template-columns: 1fr; gap: 18px; }
-  @media (min-width: 720px)  { .kgrid { grid-template-columns: repeat(3, 1fr); } }
-
-  /* ── KITS · estilo Nothing (banda clara) ── */
-  #kits {
-    max-width: none; padding-left: 0; padding-right: 0;
-    background: var(--paper2); color: var(--ink2);
-    background-image: radial-gradient(#d3d0c6 1px, transparent 1px);
-    background-size: 26px 26px;
-  }
-  .kits-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-  #kits .k-eyebrow {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
-    font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
-    text-transform: uppercase; color: var(--ink2);
-  }
-  #kits .k-eyebrow i { width: 7px; height: 7px; background: var(--amber); border-radius: 50%; display: inline-block; }
-  #kits .k-title {
-    font-family: var(--dot); font-weight: 800; font-size: clamp(34px, 8vw, 62px);
-    letter-spacing: .05em; color: var(--ink2); line-height: .95; margin-bottom: 14px;
-  }
-  #kits .k-lead {
-    font-family: var(--body); font-size: 14.5px; color: #55524a;
-    max-width: 460px; line-height: 1.6; margin-bottom: 44px;
-  }
-
-  .kgrid { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  @media (min-width: 720px)  { .kgrid { grid-template-columns: repeat(3, 1fr); } }
-
+  #kits { background: var(--agray); }
+  .kgrid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 48px; }
+  @media (min-width: 720px) { .kgrid { grid-template-columns: repeat(3, 1fr); } }
   .kcard {
-    background: #fff; border: 1px solid #e3e0d7; border-radius: 16px;
-    padding: 22px 20px; position: relative;
-    display: flex; flex-direction: column;
-    transition: transform .35s ease, border-color .35s ease;
+    background: #fff; border-radius: 18px; padding: 28px 24px;
+    text-align: center; display: flex; flex-direction: column; align-items: center;
+    box-shadow: inset 0 0 0 0 var(--ablue); transition: transform .35s ease, box-shadow .35s ease;
   }
-  .kcard:hover { transform: translateY(-4px); border-color: var(--ink2); }
-  .kcard.reco { border-color: var(--ink2); }
-  .kcard.reco::before {
-    content: 'RECOMENDADO';
-    position: absolute; top: -9px; left: 20px;
-    background: var(--ink2); color: #fff;
-    font-family: var(--mono); font-size: 8px; letter-spacing: .15em;
-    padding: 3px 10px; border-radius: 100px;
-  }
-  .khead {
-    display: flex; justify-content: space-between; align-items: center;
-    font-family: var(--mono); font-size: 10px; letter-spacing: .15em;
-    color: #8a877e; margin-bottom: 8px;
-  }
+  .kcard:hover { transform: translateY(-4px); }
+  .kcard.reco { box-shadow: inset 0 0 0 2px var(--ablue); }
   .kbadge {
-    font-family: var(--mono); font-size: 8px; letter-spacing: .12em;
-    color: #8a877e;
+    font-size: 12px; font-weight: 500; color: #fff; background: var(--ablue);
+    padding: 4px 12px; border-radius: 980px; margin-bottom: 16px;
   }
-  .kico {
-    height: 150px; margin: 8px 0 18px;
-    display: flex; align-items: center; justify-content: center;
-  }
+  .kico { height: 150px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
   .kico img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
-  .kname {
-    font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--ink2); margin-bottom: 10px;
-  }
-  .kperfil { font-family: var(--body); font-size: 13px; color: #55524a; line-height: 1.5; margin-bottom: 18px; min-height: 58px; }
-  .kprice { font-family: var(--dot); font-weight: 700; font-size: 30px; letter-spacing: .04em; color: var(--ink2); line-height: 1; }
-  .kprice small { display: block; font-size: 10px; font-family: var(--mono); font-weight: 400; color: #8a877e; letter-spacing: .06em; margin-top: 4px; }
-  .kdevice { display: none; }
-  .kchips { display: none; }
-  .kbtns { margin-top: 18px; padding-top: 16px; border-top: 1px solid #eceae3; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .kbtn {
-    font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
-    cursor: pointer; border: none; background: none; color: var(--ink2);
-    padding: 0; transition: opacity .2s;
-  }
-  .kbtn:hover { opacity: .55; }
+  .klabel { font-size: 12px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--ink2); }
+  .kcard.reco .klabel { color: var(--ablue); }
+  .kname { font-size: 24px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); margin: 3px 0 6px; }
+  .kperfil { font-size: 15px; color: var(--ink2); line-height: 1.45; margin-bottom: 16px; min-height: 66px; }
+  .kprice { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 18px; }
+  .kprice span { font-weight: 400; color: var(--ink2); }
+  .kbtns { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: auto; }
+  .kbtn { font-family: var(--sf); font-size: 15px; color: var(--alink); background: none; border: none; cursor: pointer; text-decoration: none; }
+  .kbtn:hover { text-decoration: underline; }
   .kbtn.solid {
-    background: var(--ink2); color: #fff;
-    padding: 11px 22px; border-radius: 100px; letter-spacing: .1em;
-    text-transform: uppercase; font-size: 10px;
-    transition: transform .2s, background .2s;
+    background: var(--ablue); color: #fff; padding: 9px 26px; border-radius: 980px;
+    text-decoration: none; transition: background .2s;
   }
-  .kbtn.solid:hover { opacity: 1; transform: translateY(-1px); background: #000; }
-
-  .kits-cta { text-align: center; margin-top: 52px; }
-  .kits-cta p { font-family: var(--body); font-size: 14px; color: #55524a; margin-bottom: 14px; }
-  .big-link {
-    display: inline-flex; align-items: center; gap: 10px;
-    font-family: var(--mono); font-size: 13px; letter-spacing: .08em;
-    color: #fff; background: var(--ink2); text-decoration: none;
-    border: none; cursor: pointer; padding: 15px 28px; border-radius: 100px;
-    transition: transform .25s ease;
-  }
-  .big-link:hover { transform: translateY(-2px); }
-
-  .iva-note { text-align: center; font-family: var(--mono); font-size: 10px; color: #8a877e; margin-top: 30px; letter-spacing: .06em; }
+  .kbtn.solid:hover { background: #0077ed; text-decoration: none; }
+  .kits-cta { text-align: center; margin-top: 56px; }
+  .kits-cta p { font-size: 19px; color: var(--ink2); margin-bottom: 18px; }
+  .fineprint { text-align: center; font-size: 12px; color: var(--ink3); margin-top: 32px; }
 
   /* ── SELECTOR ────────────────────────────── */
-  #selector { border-top: 1px solid var(--line); max-width: none; padding-left: 0; padding-right: 0; background: var(--bg2); }
-  .sel-inner { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  #selector { background: #fff; }
   .sel-box {
-    background: var(--bg); border: 1px solid var(--line); border-radius: 16px;
-    padding: 36px 26px; margin-top: 34px; position: relative; overflow: hidden;
+    background: var(--agray); border-radius: 20px; padding: 40px 30px;
+    margin: 48px auto 0; max-width: 640px; position: relative;
   }
   .sel-progress { display: flex; gap: 6px; margin-bottom: 30px; }
-  .sel-progress i {
-    flex: 1; height: 3px; background: var(--line); border-radius: 4px;
-    transition: background .3s;
-  }
-  .sel-progress i.on { background: var(--amber); }
-  .sel-qnum { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--amber); margin-bottom: 8px; font-weight: 700; }
-  .sel-q { font-family: var(--disp); font-size: clamp(20px, 4.4vw, 30px); letter-spacing: .04em; text-transform: uppercase; margin-bottom: 24px; }
+  .sel-progress i { flex: 1; height: 4px; background: var(--aline); border-radius: 4px; transition: background .3s; }
+  .sel-progress i.on { background: var(--ablue); }
+  .sel-qnum { font-size: 13px; letter-spacing: .01em; color: var(--ablue); margin-bottom: 8px; font-weight: 600; }
+  .sel-q { font-family: var(--sf); font-size: clamp(22px, 4vw, 30px); font-weight: 600; letter-spacing: -.01em; color: var(--ink); margin-bottom: 24px; }
   .sel-opts { display: flex; flex-direction: column; gap: 10px; }
   .sopt {
     display: flex; align-items: center; gap: 14px; text-align: left;
-    background: var(--bg2); border: 1px solid var(--line); border-radius: 10px;
-    padding: 16px 18px; cursor: pointer; color: var(--white);
-    font-family: var(--body); font-size: 14px; transition: all .2s;
+    background: #fff; border: 1px solid var(--aline); border-radius: 14px;
+    padding: 16px 18px; cursor: pointer; color: var(--ink);
+    font-family: var(--sf); font-size: 16px; transition: border-color .2s, transform .2s;
   }
-  .sopt:hover { border-color: var(--blue); background: rgba(62,123,214,.1); transform: translateX(4px); }
-  .sopt .emo { font-size: 22px; flex-shrink: 0; }
-  .sopt b { display: block; font-size: 14px; }
-  .sopt span.sub { display: block; font-size: 12px; color: var(--gray); }
-  .sel-back {
-    margin-top: 18px; background: none; border: none; color: var(--gray);
-    font-size: 11px; letter-spacing: .12em; text-transform: uppercase; cursor: pointer;
-  }
-  .sel-back:hover { color: var(--white); }
-
-  /* resultado */
-  .sel-result { text-align: center; padding: 10px 0; }
-  .sel-result .rtag { font-size: 10px; letter-spacing: .25em; text-transform: uppercase; color: var(--amber); font-weight: 700; }
-  .sel-result .rname { font-family: var(--disp); font-size: clamp(30px, 7vw, 52px); letter-spacing: .04em; text-transform: uppercase; margin: 10px 0 4px; }
-  .sel-result .rprice { font-family: var(--disp); font-size: 24px; color: var(--sky); margin-bottom: 18px; }
-  .sel-result .rprice small { font-size: 11px; font-family: var(--body); color: var(--amber); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-  .rwhy { max-width: 480px; margin: 0 auto 24px; text-align: left; }
-  .rwhy li {
-    list-style: none; font-size: 13.5px; color: rgba(244,247,251,.8);
-    padding: 8px 0 8px 26px; position: relative; border-bottom: 1px dashed var(--line);
-  }
-  .rwhy li::before { content: '✦'; position: absolute; left: 4px; color: var(--amber); }
-  .rbtns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .sopt:hover { border-color: var(--ablue); transform: translateX(4px); }
+  .sopt .emo { font-size: 24px; flex-shrink: 0; }
+  .sopt b { display: block; font-size: 16px; font-weight: 600; }
+  .sopt span.sub { display: block; font-size: 13px; color: var(--ink2); }
+  .sel-back { margin-top: 18px; background: none; border: none; color: var(--ink2); font-size: 14px; cursor: pointer; }
+  .sel-back:hover { color: var(--ink); }
+  .sel-result { text-align: center; padding: 6px 0; }
+  .sel-result .rtag { font-size: 13px; letter-spacing: .01em; color: var(--ablue); font-weight: 600; }
+  .sel-result .rname { font-family: var(--sf); font-size: clamp(30px, 6vw, 48px); font-weight: 600; letter-spacing: -.015em; color: var(--ink); margin: 8px 0 4px; }
+  .sel-result .rprice { font-size: 21px; color: var(--ink2); margin-bottom: 20px; }
+  .rwhy { max-width: 460px; margin: 0 auto 26px; text-align: left; }
+  .rwhy li { list-style: none; font-size: 15px; color: var(--ink); padding: 10px 0 10px 28px; position: relative; border-bottom: 1px solid var(--aline); }
+  .rwhy li::before { content: '✓'; position: absolute; left: 4px; color: var(--ablue); font-weight: 700; }
+  .rbtns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
   /* ── CONFIANZA ───────────────────────────── */
-  #confianza { border-top: 1px solid var(--line); }
-  .tgrid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 38px; }
+  #confianza { background: var(--agray); }
+  .tgrid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 48px; }
   @media (min-width: 600px) { .tgrid { grid-template-columns: repeat(2, 1fr); } }
-  @media (min-width: 960px) { .tgrid { grid-template-columns: repeat(4, 1fr); } }
-  .tcard {
-    background: var(--bg2); border: 1px solid var(--line);
-    border-radius: 10px; padding: 26px 20px;
-  }
-  .tcard .emo { font-size: 26px; margin-bottom: 14px; display: block; }
-  .tcard-t { font-family: var(--disp); font-size: 16px; letter-spacing: .07em; text-transform: uppercase; margin-bottom: 8px; }
-  .tcard-d { font-size: 12.5px; line-height: 1.65; color: rgba(244,247,251,.6); }
-
-  .steps { display: flex; flex-direction: column; margin-top: 64px; border-top: 1px solid var(--line); }
-  .steps-title { font-family: var(--disp); font-size: clamp(18px, 4vw, 26px); letter-spacing: .06em; text-transform: uppercase; margin: 42px 0 10px; }
-  .step {
-    display: grid; grid-template-columns: 56px 1fr;
-    gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--line);
-    align-items: start;
-  }
-  .step-n { font-family: var(--disp); font-size: 13px; letter-spacing: .1em; color: var(--amber); }
-  .step-t { font-family: var(--disp); font-size: 16px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
-  .step-d { font-size: 13px; color: rgba(244,247,251,.55); line-height: 1.6; }
-
-  .reviews { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 56px; }
+  @media (min-width: 980px) { .tgrid { grid-template-columns: repeat(4, 1fr); } }
+  .tcard { background: #fff; border-radius: 18px; padding: 30px 24px; text-align: center; }
+  .tcard .emo { font-size: 32px; margin-bottom: 16px; display: block; }
+  .tcard-t { font-family: var(--sf); font-size: 19px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); margin-bottom: 8px; }
+  .tcard-d { font-size: 14px; line-height: 1.5; color: var(--ink2); }
+  .steps { max-width: 760px; margin: 72px auto 0; }
+  .steps-title { font-family: var(--sf); font-size: clamp(24px, 4vw, 34px); font-weight: 600; letter-spacing: -.01em; color: var(--ink); text-align: center; margin-bottom: 20px; }
+  .step { display: grid; grid-template-columns: 64px 1fr; gap: 18px; padding: 22px 0; border-bottom: 1px solid var(--aline); align-items: start; }
+  .step-n { font-size: 13px; font-weight: 600; letter-spacing: .04em; color: var(--ablue); padding-top: 3px; }
+  .step-t { font-family: var(--sf); font-size: 18px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); margin-bottom: 6px; }
+  .step-d { font-size: 15px; color: var(--ink2); line-height: 1.5; }
+  .reviews { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 64px; }
   @media (min-width: 720px) { .reviews { grid-template-columns: repeat(3, 1fr); } }
-  .review {
-    background: rgba(62,123,214,.07); border: 1px solid var(--line);
-    border-radius: 10px; padding: 22px 20px;
-  }
-  .rstars { color: var(--amber); letter-spacing: 3px; font-size: 13px; margin-bottom: 10px; }
-  .rtext { font-size: 13px; color: rgba(244,247,251,.78); line-height: 1.6; margin-bottom: 12px; }
-  .rname2 { font-size: 11px; color: var(--gray); letter-spacing: .06em; text-transform: uppercase; }
-  .rverif { color: var(--sky); font-size: 10px; }
+  .review { background: #fff; border-radius: 18px; padding: 26px 24px; }
+  .rstars { color: var(--amber); letter-spacing: 2px; font-size: 14px; margin-bottom: 12px; }
+  .rtext { font-size: 15px; color: var(--ink); line-height: 1.5; margin-bottom: 14px; }
+  .rname2 { font-size: 13px; color: var(--ink2); }
+  .rverif { color: var(--ablue); }
 
   /* ── B2B ─────────────────────────────────── */
-  #b2b { border-top: 1px solid var(--line); max-width: none; background: var(--bg3); padding-left: 0; padding-right: 0; }
-  .b2b-inner { max-width: 1100px; margin: 0 auto; padding: 0 20px; display: grid; grid-template-columns: 1fr; gap: 44px; }
-  @media (min-width: 900px) { .b2b-inner { grid-template-columns: 1fr 1fr; align-items: start; } }
-  .b2b-copy .sec-title { margin-bottom: 14px; }
-  .b2b-copy p { font-size: 14.5px; color: rgba(244,247,251,.8); margin-bottom: 16px; max-width: 460px; }
-  .b2b-prices { margin: 26px 0; border-top: 1px solid rgba(156,195,240,.25); }
-  .b2b-row {
-    display: flex; justify-content: space-between; align-items: baseline;
-    padding: 13px 2px; border-bottom: 1px solid rgba(156,195,240,.25);
-  }
-  .b2b-row b { font-family: var(--disp); font-size: 15px; letter-spacing: .06em; text-transform: uppercase; font-weight: 400; }
-  .b2b-row span { font-family: var(--disp); font-size: 19px; color: var(--sky); }
-  .b2b-row span small { font-size: 10px; font-family: var(--body); color: rgba(244,247,251,.55); letter-spacing: .05em; }
-  .b2b-note { font-size: 11.5px; color: rgba(244,247,251,.55); }
-
-  .form {
-    background: var(--bg); border: 1px solid var(--line); border-radius: 14px;
-    padding: 30px 24px;
-  }
-  .form h3 { font-family: var(--disp); font-size: 20px; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 22px; }
-  .frow { margin-bottom: 14px; }
-  .frow label {
-    display: block; font-size: 10px; font-weight: 700; letter-spacing: .14em;
-    text-transform: uppercase; color: var(--sky); margin-bottom: 6px;
-  }
+  #b2b { background: #fff; }
+  .b2b-inner { display: grid; grid-template-columns: 1fr; gap: 44px; align-items: start; }
+  @media (min-width: 900px) { .b2b-inner { grid-template-columns: 1fr 1fr; gap: 56px; } }
+  .b2b-copy .a-title { text-align: left; }
+  .b2b-copy p { font-size: 17px; color: var(--ink2); margin: 16px 0; max-width: 460px; }
+  .b2b-prices { margin: 24px 0; border-top: 1px solid var(--aline); }
+  .b2b-row { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 2px; border-bottom: 1px solid var(--aline); }
+  .b2b-row b { font-size: 16px; font-weight: 600; color: var(--ink); }
+  .b2b-row span { font-size: 19px; font-weight: 600; color: var(--ink); }
+  .b2b-row span small { font-size: 12px; font-weight: 400; color: var(--ink2); }
+  .b2b-note { font-size: 13px; color: var(--ink3); line-height: 1.5; }
+  .form { background: var(--agray); border-radius: 20px; padding: 32px 28px; }
+  .form h3 { font-family: var(--sf); font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); margin-bottom: 22px; }
+  .frow { margin-bottom: 16px; }
+  .frow label { display: block; font-size: 13px; font-weight: 500; color: var(--ink2); margin-bottom: 7px; }
   .frow input, .frow select, .frow textarea {
-    width: 100%; background: var(--bg2); border: 1px solid var(--line);
-    border-radius: 7px; color: var(--white); font-family: var(--body);
-    font-size: 14px; padding: 12px 14px; outline: none; transition: border-color .2s;
-    -webkit-appearance: none; appearance: none;
+    width: 100%; background: #fff; border: 1px solid var(--aline); border-radius: 12px;
+    color: var(--ink); font-family: var(--sf); font-size: 16px; padding: 12px 14px;
+    outline: none; transition: border-color .2s; -webkit-appearance: none; appearance: none;
   }
-  .frow input:focus, .frow select:focus, .frow textarea:focus { border-color: var(--blue); }
-  .frow textarea { resize: vertical; min-height: 84px; }
+  .frow input:focus, .frow select:focus, .frow textarea:focus { border-color: var(--ablue); box-shadow: 0 0 0 3px rgba(0,113,227,.15); }
+  .frow textarea { resize: vertical; min-height: 88px; }
   .frow2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .fsubmit {
-    width: 100%; margin-top: 8px; background: var(--amber); border: none; color: #221503;
-    font-family: var(--body); font-weight: 800; font-size: 12px; letter-spacing: .14em;
-    text-transform: uppercase; padding: 15px; border-radius: 7px; cursor: pointer;
-    transition: background .2s, transform .15s;
+    width: 100%; margin-top: 8px; background: var(--ablue); border: none; color: #fff;
+    font-family: var(--sf); font-weight: 400; font-size: 17px; padding: 13px; border-radius: 980px; cursor: pointer;
+    transition: background .2s;
   }
-  .fsubmit:hover { background: #f7a821; transform: translateY(-1px); }
-  .fok {
-    display: none; text-align: center; padding: 40px 10px;
-  }
+  .fsubmit:hover { background: #0077ed; }
+  .fok { display: none; text-align: center; padding: 40px 10px; }
   .fok.show { display: block; }
   .fok .emo { font-size: 44px; display: block; margin-bottom: 14px; }
-  .fok h4 { font-family: var(--disp); font-size: 22px; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 10px; }
-  .fok p { font-size: 13px; color: rgba(244,247,251,.65); }
+  .fok h4 { font-family: var(--sf); font-size: 24px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+  .fok p { font-size: 15px; color: var(--ink2); line-height: 1.5; }
 
-  /* ── APADRINA ────────────────────────────── */
-  #apadrina { max-width: none; background: var(--amber); color: #221503; padding: 64px 20px; }
-  .apa-inner { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; align-items: flex-start; }
-  @media (min-width: 860px) { .apa-inner { flex-direction: row; align-items: center; justify-content: space-between; } }
-  .apa-title { font-family: var(--disp); font-size: clamp(26px, 5.5vw, 44px); letter-spacing: .04em; text-transform: uppercase; line-height: 1.05; }
-  .apa-copy { max-width: 440px; font-size: 14px; font-weight: 500; line-height: 1.6; }
-  .apa-btn {
-    flex-shrink: 0; background: #221503; color: var(--amber); border: none;
-    font-family: var(--disp); font-size: 17px; letter-spacing: .08em; text-transform: uppercase;
-    padding: 18px 30px; border-radius: 8px; cursor: pointer; transition: transform .2s, opacity .2s;
-  }
-  .apa-btn:hover { transform: translateY(-2px); opacity: .92; }
+  /* ── APADRINA (banda oscura) ─────────────── */
+  #apadrina { background: var(--ink); color: #fff; text-align: center; }
+  #apadrina .a-title { color: #fff; }
+  .apa-copy { max-width: 580px; margin: 16px auto 28px; font-size: 19px; color: #a1a1a6; line-height: 1.5; }
 
   /* ── FOOTER ─────────────────────────────── */
-  footer { border-top: 1px solid var(--line); padding: 44px 20px 28px; }
-  .foot-inner {
-    max-width: 1200px; margin: 0 auto;
-    display: flex; flex-direction: column; align-items: center; gap: 20px;
-  }
-  @media (min-width: 640px) {
-    .foot-inner { flex-direction: row; justify-content: space-between; align-items: center; }
-  }
-  .foot-logo { font-size: 28px; }
-  .foot-links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+  footer { background: var(--agray); border-top: 1px solid var(--aline); padding: 40px 22px 30px; }
+  .foot-inner { max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+  @media (min-width: 640px) { .foot-inner { flex-direction: row; justify-content: space-between; } }
+  .foot-logo { font-size: 26px; color: var(--ink); }
+  .foot-links { display: flex; gap: 22px; flex-wrap: wrap; justify-content: center; }
   .foot-links a, .foot-links button {
-    font-size: 10px; letter-spacing: .13em; text-transform: uppercase;
-    color: var(--gray); text-decoration: none; transition: color .2s;
-    background: none; border: none; cursor: pointer; font-family: var(--body);
+    font-size: 13px; color: var(--ink); text-decoration: none;
+    background: none; border: none; cursor: pointer; font-family: var(--sf);
   }
-  .foot-links a:hover, .foot-links button:hover { color: var(--white); }
-  .foot-copy { font-size: 10px; color: var(--gray); letter-spacing: .06em; text-align: center; }
+  .foot-links a:hover, .foot-links button:hover { color: var(--ablue); text-decoration: underline; }
+  .foot-copy { font-size: 12px; color: var(--ink3); text-align: center; line-height: 1.5; }
 
-  /* ── MODALES ─────────────────────────────── */
+  /* ── MODALES (Apple) ─────────────────────── */
   .modal {
-    position: fixed; inset: 0; background: rgba(6,12,21,.85);
-    z-index: 1500; display: flex;
-    align-items: flex-end; justify-content: center;
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    z-index: 1500; display: flex; align-items: flex-end; justify-content: center;
     opacity: 0; pointer-events: none; transition: opacity .3s;
   }
   @media (min-width: 600px) { .modal { align-items: center; padding: 30px; } }
   .modal.open { opacity: 1; pointer-events: all; }
   .mbox {
-    background: var(--bg2); border: 1px solid var(--line);
-    width: 100%; max-width: 560px; max-height: 88svh; overflow-y: auto;
-    padding: 36px 26px 30px;
-    border-radius: 14px 14px 0 0; position: relative;
+    background: #fff; width: 100%; max-width: 560px; max-height: 88svh; overflow-y: auto;
+    padding: 36px 28px 30px; border-radius: 20px 20px 0 0; position: relative;
     transform: translateY(24px); transition: transform .32s ease;
   }
-  @media (min-width: 600px) { .mbox { border-radius: 14px; transform: scale(.96); } }
+  @media (min-width: 600px) { .mbox { border-radius: 20px; transform: scale(.96); } }
   .modal.open .mbox { transform: translateY(0) scale(1); }
-  .mclose {
-    position: sticky; top: 0; float: right; margin: -20px -6px 0 0;
-    background: none; border: none; color: var(--gray);
-    font-size: 28px; cursor: pointer; line-height: 1; z-index: 2;
-  }
-  .mclose:hover { color: var(--white); }
-  .mimg {
-    width: 100%; height: 200px; object-fit: contain; display: block; background: #fff; padding: 10px;
-    border-radius: 10px; border: 1px solid var(--line); margin-bottom: 18px;
-  }
-  .mtag { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px; font-weight: 700; }
-  .mtitle { font-family: var(--disp); font-size: 28px; letter-spacing: .05em; text-transform: uppercase; margin-bottom: 4px; }
-  .mprice { font-family: var(--disp); font-size: 24px; color: var(--sky); margin-bottom: 20px; }
-  .mprice small { font-size: 11px; font-family: var(--body); color: var(--amber); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-  .msec { margin-bottom: 20px; }
-  .msec h4 {
-    font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--sky); margin-bottom: 9px; padding-bottom: 6px; border-bottom: 1px solid var(--line);
-  }
-  .msec li { list-style: none; font-size: 13.5px; color: rgba(244,247,251,.82); padding: 5px 0 5px 22px; position: relative; }
-  .msec.uso li::before   { content: '✓'; position: absolute; left: 2px; color: #57c78a; font-weight: 700; }
-  .msec.inc li::before   { content: '+'; position: absolute; left: 4px; color: var(--sky); font-weight: 700; }
-  .msec.lim li::before   { content: '—'; position: absolute; left: 0; color: var(--amber); font-weight: 700; }
-  .mnote { font-size: 11.5px; color: var(--gray); line-height: 1.55; margin-bottom: 18px; }
-  .mtrust {
-    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px;
-  }
-  .mtrust span {
-    font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-    color: var(--sky); background: rgba(62,123,214,.12); border: 1px solid rgba(62,123,214,.3);
-    padding: 6px 11px; border-radius: 100px;
-  }
-  .mbtns { display: flex; gap: 10px; }
-  .mbtns .kbtn { padding: 14px 8px; }
-
-  /* cesta */
-  .cart-line {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 14px;
-  }
-  .cart-line b { font-family: var(--disp); letter-spacing: .05em; font-weight: 400; text-transform: uppercase; }
-  .cart-line .cprice { font-family: var(--disp); color: var(--sky); }
-  .cart-del { background: none; border: none; color: var(--gray); cursor: pointer; font-size: 16px; margin-left: 12px; }
-  .cart-del:hover { color: #e66; }
-  .cart-total {
-    display: flex; justify-content: space-between; padding: 16px 0 4px;
-    font-family: var(--disp); font-size: 20px; letter-spacing: .04em;
-  }
-  .cart-total span { color: var(--amber); }
-  .cart-empty { text-align: center; color: var(--gray); font-size: 13px; padding: 30px 0; }
-  .cart-note { font-size: 11px; color: var(--gray); margin: 10px 0 16px; line-height: 1.5; }
+  .mclose { position: sticky; top: 0; float: right; margin: -18px -8px 0 0; background: none; border: none; color: var(--ink3); font-size: 28px; cursor: pointer; line-height: 1; z-index: 2; }
+  .mclose:hover { color: var(--ink); }
+  .mimg { width: 100%; height: 200px; object-fit: contain; display: block; background: var(--agray); padding: 16px; border-radius: 16px; margin-bottom: 18px; }
+  .mtag { font-size: 13px; color: var(--ablue); margin-bottom: 6px; font-weight: 600; }
+  .mtitle { font-family: var(--sf); font-size: 28px; font-weight: 600; letter-spacing: -.015em; color: var(--ink); margin-bottom: 4px; }
+  .mprice { font-size: 21px; font-weight: 600; color: var(--ink); margin-bottom: 22px; }
+  .mprice small { font-size: 13px; font-weight: 400; color: var(--ink2); }
+  .msec { margin-bottom: 22px; }
+  .msec h4 { font-size: 13px; font-weight: 600; color: var(--ink2); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--aline); }
+  .msec li { list-style: none; font-size: 15px; color: var(--ink); padding: 6px 0 6px 24px; position: relative; }
+  .msec.uso li::before { content: '✓'; position: absolute; left: 2px; color: #29963f; font-weight: 700; }
+  .msec.inc li::before { content: '+'; position: absolute; left: 4px; color: var(--ablue); font-weight: 700; }
+  .msec.lim li::before { content: '–'; position: absolute; left: 4px; color: var(--ink3); font-weight: 700; }
+  .mnote { font-size: 13px; color: var(--ink3); line-height: 1.5; margin-bottom: 18px; }
+  .mtrust { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
+  .mtrust span { font-size: 12px; font-weight: 500; color: var(--ink); background: var(--agray); padding: 7px 12px; border-radius: 980px; }
+  .mbtns { display: flex; gap: 12px; align-items: center; }
+  .cart-line { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--aline); font-size: 16px; }
+  .cart-line b { font-weight: 600; color: var(--ink); }
+  .cart-line .cprice { font-weight: 600; color: var(--ink); }
+  .cart-del { background: none; border: none; color: var(--ink3); cursor: pointer; font-size: 18px; margin-left: 12px; }
+  .cart-del:hover { color: #e0245e; }
+  .cart-total { display: flex; justify-content: space-between; padding: 18px 0 4px; font-size: 20px; font-weight: 600; color: var(--ink); }
+  .cart-total span:last-child { color: var(--ablue); }
+  .cart-empty { text-align: center; color: var(--ink3); font-size: 15px; padding: 30px 0; }
+  .cart-note { font-size: 13px; color: var(--ink3); margin: 14px 0 18px; line-height: 1.5; }
 
   /* toast */
   #toast {
     position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: var(--bg2); border: 1px solid var(--amber); color: var(--white);
-    font-size: 13px; padding: 13px 22px; border-radius: 100px; z-index: 9600;
-    transition: transform .35s cubic-bezier(.19,1,.22,1); white-space: nowrap;
-    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    background: var(--ink); color: #fff; font-size: 15px; padding: 13px 24px; border-radius: 980px;
+    z-index: 9600; transition: transform .35s cubic-bezier(.19,1,.22,1); white-space: nowrap;
+    box-shadow: 0 10px 40px rgba(0,0,0,.25);
   }
   #toast.show { transform: translateX(-50%) translateY(0); }
 </style>
 </head>
-<body class="home locked">
+<body>
 
 <!-- ── LOADER ──────────────────────────────── -->
 <div id="loader">
@@ -602,32 +424,24 @@
   <span class="wordmark" id="loader-mark">rev<span class="star">✦</span>lt</span>
 </div>
 
-<!-- ── WIPE ────────────────────────────────── -->
-<div id="wipe"></div>
-
 <!-- ── NAVBAR ──────────────────────────────── -->
 <nav id="nav">
-  <button class="burger" id="burger" aria-label="Menú">
-    <span></span><span></span><span></span>
-  </button>
+  <button class="burger" id="burger" aria-label="Menú"><span></span><span></span><span></span></button>
   <a href="#" class="wordmark nav-logo" id="logoHome">rev<span class="star">✦</span>lt</a>
-  <button class="bag" id="bagBtn">CESTA<sup id="bagCount">0</sup></button>
+  <div class="nav-links">
+    <a href="#kits" data-go>Kits</a>
+    <a href="#selector" data-go>Test</a>
+    <a href="#confianza" data-go>Confianza</a>
+    <a href="#b2b" data-go>Centros</a>
+    <a href="#apadrina" data-go>Apadrina</a>
+  </div>
+  <button class="bag" id="bagBtn">Cesta<sup id="bagCount">0</sup></button>
 </nav>
 
-<!-- ── LINKS LATERALES (desktop, home) ─────── -->
-<div class="side-links">
-  <a href="#kits"      data-go style="transition-delay:.05s">Los kits</a>
-  <a href="#selector"  data-go style="transition-delay:.1s">Hazme el test</a>
-  <a href="#confianza" data-go style="transition-delay:.15s">Confianza</a>
-  <a href="#b2b"       data-go style="transition-delay:.2s">Centros y entidades</a>
-  <a href="#apadrina"  data-go style="transition-delay:.25s">Apadrina un kit</a>
-  <a href="mailto:hola@revolt.es" style="transition-delay:.3s">Contacto</a>
-</div>
-
-<!-- ── MENU FULLSCREEN ─────────────────────── -->
+<!-- ── MENU FULLSCREEN (móvil) ─────────────── -->
 <div id="mmenu">
-  <button class="mlink" data-go data-target="#kits">Los kits</button>
-  <button class="mlink" data-go data-target="#selector">Hazme el test</button>
+  <button class="mlink" data-go data-target="#kits">Kits</button>
+  <button class="mlink" data-go data-target="#selector">Test</button>
   <button class="mlink" data-go data-target="#confianza">Confianza</button>
   <button class="mlink" data-go data-target="#b2b">Centros</button>
   <button class="mlink" data-go data-target="#apadrina">Apadrina</button>
@@ -637,7 +451,7 @@
   </div>
 </div>
 
-<!-- ══════════════ VISTA HOME ══════════════ -->
+<!-- ══════════════ PORTADA (HERO) ══════════════ -->
 <div id="view-home">
   <video id="hero-video" autoplay muted loop playsinline preload="auto">
     <source src="video/hero.mp4" type="video/mp4">
@@ -657,216 +471,93 @@
     <span class="hbadge">Borrado certificado</span>
     <span class="hbadge">Listo para usar</span>
   </div>
+  <div class="scroll-hint">⌄</div>
 </div>
 
-<!-- ══════════════ VISTA PRINCIPAL ══════════════ -->
+<!-- ══════════════ CONTENIDO (scroll) ══════════════ -->
 <div id="view-main">
 
-  <!-- ── TICKER ── -->
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker-track">
-      <span>REV✦LT — KITS EDUCATIVOS REACONDICIONADOS</span><span>·</span>
-      <span>IVA INCLUIDO EN TODOS LOS PRECIOS</span><span>·</span>
-      <span>GARANTÍA INCLUIDA</span><span>·</span>
-      <span>DEVOLUCIÓN 30 DÍAS</span><span>·</span>
-      <span>BORRADO CERTIFICADO DE DATOS</span><span>·</span>
-      <span>REV✦LT — KITS EDUCATIVOS REACONDICIONADOS</span><span>·</span>
-      <span>IVA INCLUIDO EN TODOS LOS PRECIOS</span><span>·</span>
-      <span>GARANTÍA INCLUIDA</span><span>·</span>
-      <span>DEVOLUCIÓN 30 DÍAS</span><span>·</span>
-      <span>BORRADO CERTIFICADO DE DATOS</span><span>·</span>
-    </div>
-  </div>
-
   <!-- ── KITS ── -->
-  <section id="kits">
-    <div class="kits-inner">
-      <div class="k-eyebrow rev"><i></i> Los kits</div>
-      <h2 class="k-title rev">3 KITS.</h2>
-      <p class="k-lead rev">
-        Solución cerrada: el dispositivo reacondicionado, sus accesorios y toda la preparación
-        (revisión, borrado seguro, configuración y garantía). El precio que ves es el final, con IVA.
-      </p>
-
+  <section id="kits" class="a-sec">
+    <div class="a-in">
+      <h2 class="a-title rev">Los kits.</h2>
+      <p class="a-sub muted rev">Tres soluciones completas. El precio final con IVA, desde el primer momento.</p>
       <div class="kgrid" id="kgrid"></div>
-
       <div class="kits-cta rev">
-        <p>¿No tienes claro cuál encaja contigo? No necesitas saber de tecnología.</p>
-        <button class="big-link" data-go data-target="#selector">Hazme el test de 1 min →</button>
+        <p>¿No sabes cuál elegir? No necesitas saber de tecnología.</p>
+        <button class="pill" data-go data-target="#selector">Hazme el test de 1 min</button>
       </div>
-      <p class="iva-note rev">Modelos orientativos del nivel de cada kit · el stock reacondicionado varía, la calidad no</p>
+      <p class="fineprint rev">Modelos orientativos del nivel de cada kit · el stock reacondicionado varía, la calidad no.</p>
     </div>
   </section>
 
   <!-- ── SELECTOR ── -->
-  <section id="selector">
-    <div class="sel-inner">
-      <div class="sec-head">
-        <h2 class="sec-title">¿Qué kit es el mío?</h2>
-      </div>
-      <p class="sec-intro" style="margin-bottom:0">
-        Cuatro preguntas sobre cómo se va a usar — <strong>nada de gigas ni procesadores</strong> —
-        y te decimos qué kit encaja. Tarda menos de un minuto.
-      </p>
+  <section id="selector" class="a-sec">
+    <div class="a-in">
+      <h2 class="a-title rev">¿Qué kit es el mío?</h2>
+      <p class="a-sub muted rev">Cuatro preguntas sobre cómo se va a usar. Nada de gigas ni procesadores. Menos de un minuto.</p>
       <div class="sel-box rev" id="selBox"></div>
     </div>
   </section>
 
   <!-- ── CONFIANZA ── -->
-  <section id="confianza">
-    <div class="sec-head">
-      <h2 class="sec-title">Comprar reacondicionado sin miedo</h2>
-    </div>
-    <p class="sec-intro">
-      Sabemos lo que da respeto de la segunda mano: que falle, que traiga datos de otro,
-      que no haya a quién reclamar. Por eso cada kit sale con esto, <strong>por escrito</strong>:
-    </p>
+  <section id="confianza" class="a-sec">
+    <div class="a-in">
+      <h2 class="a-title rev">Reacondicionado sin miedo.</h2>
+      <p class="a-sub muted rev">Todo lo que da respeto de la segunda mano, resuelto y por escrito.</p>
 
-    <div class="tgrid">
-      <div class="tcard rev">
-        <span class="emo">🛡️</span>
-        <div class="tcard-t">Garantía incluida</div>
-        <p class="tcard-d">Todos los kits salen con garantía legal de reacondicionado. Si algo falla, lo reparamos o lo cambiamos. Sin letra pequeña.</p>
+      <div class="tgrid">
+        <div class="tcard rev"><span class="emo">🛡️</span><div class="tcard-t">Garantía incluida</div><p class="tcard-d">Todos los kits salen con garantía legal de reacondicionado. Si algo falla, lo reparamos o lo cambiamos.</p></div>
+        <div class="tcard rev"><span class="emo">↩️</span><div class="tcard-t">Devolución 30 días</div><p class="tcard-d">Un mes entero para probarlo en el día a día real. Si no convence, lo devuelves y te devolvemos el dinero.</p></div>
+        <div class="tcard rev"><span class="emo">🔒</span><div class="tcard-t">Borrado certificado</div><p class="tcard-d">Cada equipo pasa un borrado seguro de datos certificado. No queda nada del usuario anterior. Nada.</p></div>
+        <div class="tcard rev"><span class="emo">📦</span><div class="tcard-t">Listo para usar</div><p class="tcard-d">Configuración inicial incluida: se enciende y se empieza a estudiar. Sin instalar nada.</p></div>
       </div>
-      <div class="tcard rev">
-        <span class="emo">↩️</span>
-        <div class="tcard-t">Devolución 30 días</div>
-        <p class="tcard-d">Un mes entero para probarlo en el día a día real: clases, deberes, casa. Si no convence, lo devuelves y te devolvemos el dinero.</p>
-      </div>
-      <div class="tcard rev">
-        <span class="emo">🔒</span>
-        <div class="tcard-t">Borrado certificado</div>
-        <p class="tcard-d">Cada equipo pasa un borrado seguro de datos certificado antes de reconfigurarse. No queda nada del usuario anterior. Nada.</p>
-      </div>
-      <div class="tcard rev">
-        <span class="emo">📦</span>
-        <div class="tcard-t">Llega listo para usar</div>
-        <p class="tcard-d">Configuración inicial incluida: se enciende y se empieza a estudiar. Sin instalar nada, sin llamar al primo informático.</p>
-      </div>
-    </div>
 
-    <div class="steps rev">
-      <h3 class="steps-title">Cómo preparamos cada equipo</h3>
-      <div class="step">
-        <span class="step-n">PASO 1</span>
-        <div>
-          <div class="step-t">Diagnóstico completo</div>
-          <p class="step-d">Verificación funcional pieza a pieza: pantalla, batería, teclado, puertos, cámara y sonido. Lo que no pasa el corte, no se vende.</p>
-        </div>
+      <div class="steps rev">
+        <h3 class="steps-title">Cómo preparamos cada equipo</h3>
+        <div class="step"><span class="step-n">PASO 1</span><div><div class="step-t">Diagnóstico completo</div><p class="step-d">Verificación funcional pieza a pieza: pantalla, batería, teclado, puertos, cámara y sonido. Lo que no pasa el corte, no se vende.</p></div></div>
+        <div class="step"><span class="step-n">PASO 2</span><div><div class="step-t">Borrado seguro certificado</div><p class="step-d">Eliminación certificada de todos los datos del usuario anterior, con registro del proceso. Privacidad de serie.</p></div></div>
+        <div class="step"><span class="step-n">PASO 3</span><div><div class="step-t">Puesta a punto</div><p class="step-d">Limpieza a fondo, sustitución de lo que esté justo y sistema operativo recién instalado y actualizado.</p></div></div>
+        <div class="step"><span class="step-n">PASO 4</span><div><div class="step-t">Configuración educativa</div><p class="step-d">Lo dejamos preparado para estudiar: cuentas listas, navegador, ofimática y ajustes pensados para el aula.</p></div></div>
+        <div class="step"><span class="step-n">PASO 5</span><div><div class="step-t">Kit completo y garantía</div><p class="step-d">Se empaqueta con sus accesorios, su garantía y su hoja de revisión. Un kit, una caja, cero sorpresas.</p></div></div>
       </div>
-      <div class="step">
-        <span class="step-n">PASO 2</span>
-        <div>
-          <div class="step-t">Borrado seguro certificado</div>
-          <p class="step-d">Eliminación certificada de todos los datos del usuario anterior, con registro del proceso. Privacidad de serie.</p>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-n">PASO 3</span>
-        <div>
-          <div class="step-t">Puesta a punto</div>
-          <p class="step-d">Limpieza a fondo, sustitución de lo que esté justo y sistema operativo recién instalado y actualizado.</p>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-n">PASO 4</span>
-        <div>
-          <div class="step-t">Configuración educativa</div>
-          <p class="step-d">Lo dejamos preparado para estudiar: cuentas listas para crear, navegador, ofimática y ajustes pensados para el aula.</p>
-        </div>
-      </div>
-      <div class="step">
-        <span class="step-n">PASO 5</span>
-        <div>
-          <div class="step-t">Kit completo y garantía</div>
-          <p class="step-d">Se empaqueta con sus accesorios, su garantía y su hoja de revisión. Un kit, una caja, cero sorpresas.</p>
-        </div>
-      </div>
-    </div>
 
-    <div class="reviews">
-      <div class="review rev">
-        <div class="rstars">★★★★★</div>
-        <p class="rtext">"Compramos el Completo para mi hija de 3º de ESO. Llegó impecable y encendido a la primera. Un año después, ni un problema."</p>
-        <div class="rname2">Marta G. · Madrid <span class="rverif">· Compra verificada</span></div>
-      </div>
-      <div class="review rev">
-        <div class="rstars">★★★★★</div>
-        <p class="rtext">"El test me recomendó el Esencial y acertó: para el aula virtual del cole va de sobra. Nos ahorramos más de 200 € frente a uno nuevo."</p>
-        <div class="rname2">Jorge R. · Getafe <span class="rverif">· Compra verificada</span></div>
-      </div>
-      <div class="review rev">
-        <div class="rstars">★★★★☆</div>
-        <p class="rtext">"Soy estudiante de ingeniería y el Avanzado mueve todo lo que le echo. Se nota que está usado en la carcasa, pero por dentro vuela."</p>
-        <div class="rname2">Lucía P. · Alcorcón <span class="rverif">· Compra verificada</span></div>
+      <div class="reviews">
+        <div class="review rev"><div class="rstars">★★★★★</div><p class="rtext">"Compramos el Completo para mi hija de 3º de ESO. Llegó impecable y encendido a la primera. Un año después, ni un problema."</p><div class="rname2">Marta G. · Madrid <span class="rverif">· Compra verificada</span></div></div>
+        <div class="review rev"><div class="rstars">★★★★★</div><p class="rtext">"El test me recomendó el Esencial y acertó: para el aula virtual del cole va de sobra. Nos ahorramos más de 200 € frente a uno nuevo."</p><div class="rname2">Jorge R. · Getafe <span class="rverif">· Compra verificada</span></div></div>
+        <div class="review rev"><div class="rstars">★★★★☆</div><p class="rtext">"Soy estudiante de ingeniería y el Avanzado mueve todo lo que le echo. Se nota que está usado en la carcasa, pero por dentro vuela."</p><div class="rname2">Lucía P. · Alcorcón <span class="rverif">· Compra verificada</span></div></div>
       </div>
     </div>
   </section>
 
   <!-- ── B2B ── -->
-  <section id="b2b">
-    <div class="b2b-inner">
+  <section id="b2b" class="a-sec">
+    <div class="a-in b2b-inner">
       <div class="b2b-copy rev">
-        <h2 class="sec-title">Centros y entidades</h2>
-        <p>
-          Equipamos <strong>colegios, institutos, asociaciones, fundaciones y administraciones</strong>
-          con lotes de kits listos para el aula: misma preparación, misma garantía, tarifa por volumen.
-        </p>
+        <h2 class="a-title">Centros y entidades.</h2>
+        <p>Equipamos colegios, institutos, asociaciones, fundaciones y administraciones con lotes de kits listos para el aula: misma preparación, misma garantía, tarifa por volumen.</p>
         <div class="b2b-prices">
           <div class="b2b-row"><b>Kit 1 · Esencial</b><span>179 € <small>/ ud. sin IVA</small></span></div>
           <div class="b2b-row"><b>Kit 2 · Completo</b><span>215 € <small>/ ud. sin IVA</small></span></div>
           <div class="b2b-row"><b>Kit 3 · Avanzado</b><span>330 € <small>/ ud. sin IVA</small></span></div>
         </div>
-        <p class="b2b-note">
-          Tarifas para compra por lotes. Incluyen la misma preparación que la gama doméstica:
-          verificación, borrado certificado, configuración y garantía. Te preparamos el presupuesto en 48 h laborables.
-        </p>
+        <p class="b2b-note">Tarifas para compra por lotes. Incluyen la misma preparación que la gama doméstica: verificación, borrado certificado, configuración y garantía. Presupuesto en 48 h laborables.</p>
       </div>
 
       <div class="form rev" id="b2bForm">
         <div id="b2bFields">
           <h3>Pide presupuesto por lotes</h3>
-          <div class="frow">
-            <label for="f-ent">Nombre de la entidad</label>
-            <input id="f-ent" type="text" placeholder="CEIP Miguel Delibes" required>
+          <div class="frow"><label for="f-ent">Nombre de la entidad</label><input id="f-ent" type="text" placeholder="CEIP Miguel Delibes" required></div>
+          <div class="frow2">
+            <div class="frow"><label for="f-tipo">Tipo de entidad</label><select id="f-tipo"><option>Centro educativo</option><option>Asociación</option><option>Fundación</option><option>Administración pública</option><option>Otra</option></select></div>
+            <div class="frow"><label for="f-kit">Kit que interesa</label><select id="f-kit"><option>Kit 1 · Esencial</option><option>Kit 2 · Completo</option><option>Kit 3 · Avanzado</option><option>Combinación de varios</option><option>Aún no lo sé</option></select></div>
           </div>
           <div class="frow2">
-            <div class="frow">
-              <label for="f-tipo">Tipo de entidad</label>
-              <select id="f-tipo">
-                <option>Centro educativo</option>
-                <option>Asociación</option>
-                <option>Fundación</option>
-                <option>Administración pública</option>
-                <option>Otra</option>
-              </select>
-            </div>
-            <div class="frow">
-              <label for="f-kit">Kit que interesa</label>
-              <select id="f-kit">
-                <option>Kit 1 · Esencial</option>
-                <option>Kit 2 · Completo</option>
-                <option>Kit 3 · Avanzado</option>
-                <option>Combinación de varios</option>
-                <option>Aún no lo sé</option>
-              </select>
-            </div>
+            <div class="frow"><label for="f-uds">Nº de unidades (aprox.)</label><input id="f-uds" type="number" min="5" placeholder="25" required></div>
+            <div class="frow"><label for="f-mail">Email de contacto</label><input id="f-mail" type="email" placeholder="direccion@centro.edu" required></div>
           </div>
-          <div class="frow2">
-            <div class="frow">
-              <label for="f-uds">Nº de unidades (aprox.)</label>
-              <input id="f-uds" type="number" min="5" placeholder="25" required>
-            </div>
-            <div class="frow">
-              <label for="f-mail">Email de contacto</label>
-              <input id="f-mail" type="email" placeholder="direccion@centro.edu" required>
-            </div>
-          </div>
-          <div class="frow">
-            <label for="f-msg">Cuéntanos tu caso (opcional)</label>
-            <textarea id="f-msg" placeholder="Necesitamos equipar dos aulas de 1º de la ESO para el curso que viene…"></textarea>
-          </div>
-          <button class="fsubmit" id="b2bSend">Pedir presupuesto →</button>
+          <div class="frow"><label for="f-msg">Cuéntanos tu caso (opcional)</label><textarea id="f-msg" placeholder="Necesitamos equipar dos aulas de 1º de la ESO para el curso que viene…"></textarea></div>
+          <button class="fsubmit" id="b2bSend">Pedir presupuesto</button>
         </div>
         <div class="fok" id="b2bOk">
           <span class="emo">📬</span>
@@ -878,17 +569,11 @@
   </section>
 
   <!-- ── APADRINA ── -->
-  <section id="apadrina">
-    <div class="apa-inner">
-      <div>
-        <h2 class="apa-title">Apadrina un kit ✦</h2>
-        <p class="apa-copy" style="margin-top:12px">
-          Hay estudiantes que siguen las clases desde el móvil de sus padres.
-          Por <b>lo que cuesta un kit</b>, uno de ellos recibe un equipo completo, revisado y listo —
-          a través de centros y entidades sociales colaboradoras. Te contamos a quién ayuda tu aportación.
-        </p>
-      </div>
-      <button class="apa-btn" id="apaBtn">Quiero apadrinar</button>
+  <section id="apadrina" class="a-sec">
+    <div class="a-in">
+      <h2 class="a-title rev">Apadrina un kit.</h2>
+      <p class="apa-copy rev">Hay estudiantes que siguen las clases desde el móvil de sus padres. Por lo que cuesta un kit, uno de ellos recibe un equipo completo, revisado y listo — a través de centros y entidades sociales colaboradoras.</p>
+      <div class="rev" style="text-align:center"><button class="pill" id="apaBtn">Quiero apadrinar</button></div>
     </div>
   </section>
 
@@ -898,23 +583,19 @@
       <span class="wordmark foot-logo">rev<span class="star">✦</span>lt</span>
       <div class="foot-links">
         <button data-go data-target="#kits">Kits</button>
-        <button data-go data-target="#selector">Selector</button>
+        <button data-go data-target="#selector">Test</button>
         <button data-go data-target="#confianza">Confianza</button>
         <button data-go data-target="#b2b">Centros</button>
         <button data-go data-target="#apadrina">Apadrina</button>
         <a href="mailto:hola@revolt.es">Contacto</a>
       </div>
-      <div class="foot-copy">© 2026 ReVolt · Tecnología que vuelve al aula · Prototipo TFG<br>
-      <span style="opacity:.7">Imágenes de producto orientativas: referencias del nivel de gama de cada kit (el stock reacondicionado varía).</span>
-    </div>
+      <div class="foot-copy">© 2026 ReVolt · Tecnología que vuelve al aula · Prototipo TFG<br>Imágenes de producto orientativas: referencias del nivel de gama de cada kit.</div>
     </div>
   </footer>
 </div>
 
 <!-- ── MODAL FICHA KIT ─────────────────────── -->
-<div class="modal" id="kitModal">
-  <div class="mbox" id="kitModalBox"></div>
-</div>
+<div class="modal" id="kitModal"><div class="mbox" id="kitModalBox"></div></div>
 
 <!-- ── MODAL CESTA ─────────────────────────── -->
 <div class="modal" id="cartModal">
@@ -923,13 +604,10 @@
     <p class="mtag">Tu cesta</p>
     <h3 class="mtitle">Resumen</h3>
     <div id="cartLines"></div>
-    <p class="cart-note">
-      Sin costes ocultos: el total es el total. En la versión final el pago se hace con
-      tarjeta o wallets (Apple Pay / Google Pay) a través de Shopify Payments.
-    </p>
+    <p class="cart-note">Sin costes ocultos: el total es el total. En la versión final el pago se hace con tarjeta o wallets (Apple Pay / Google Pay) a través de Shopify Payments.</p>
     <div class="mbtns">
       <button class="kbtn" data-close>Seguir mirando</button>
-      <button class="kbtn solid" id="payBtn">Pagar (demo) →</button>
+      <button class="kbtn solid" id="payBtn">Pagar (demo)</button>
     </div>
   </div>
 </div>
@@ -940,23 +618,20 @@
     <button class="mclose" data-close>×</button>
     <p class="mtag">Apadrinamiento</p>
     <h3 class="mtitle">Así funciona</h3>
-    <div class="msec inc">
-      <ul>
-        <li>Eliges qué kit apadrinas (o aportas una cantidad libre).</li>
-        <li>Preparamos el equipo igual que uno de venta: revisión, borrado y garantía.</li>
-        <li>Una entidad social o centro colaborador lo entrega a un estudiante sin recursos.</li>
-        <li>Recibes confirmación del destino de tu aportación (siempre anonimizada).</li>
-      </ul>
-    </div>
+    <div class="msec inc"><ul>
+      <li>Eliges qué kit apadrinas (o aportas una cantidad libre).</li>
+      <li>Preparamos el equipo igual que uno de venta: revisión, borrado y garantía.</li>
+      <li>Una entidad social o centro colaborador lo entrega a un estudiante sin recursos.</li>
+      <li>Recibes confirmación del destino de tu aportación (siempre anonimizada).</li>
+    </ul></div>
     <p class="mnote">En el prototipo, escríbenos y te contamos cómo participar.</p>
     <div class="mbtns">
       <button class="kbtn" data-close>Cerrar</button>
-      <a class="kbtn solid" href="mailto:apadrina@revolt.es" style="text-align:center; text-decoration:none; line-height:1.2;">Escribir a apadrina@revolt.es</a>
+      <a class="kbtn solid" href="mailto:apadrina@revolt.es" style="text-decoration:none;">Escribir a apadrina@revolt.es</a>
     </div>
   </div>
 </div>
 
-<!-- ── TOAST ───────────────────────────────── -->
 <div id="toast"></div>
 
 <script>
@@ -967,7 +642,6 @@ const KITS = [
     price: '240,79', priceN: 240.79,
     perfil: 'Para seguir el aula virtual, tomar apuntes y consumir contenidos sin complicarse.',
     device: 'Tableta de 11" reacondicionada (tipo Samsung Galaxy Tab A9+) con funda con soporte y sistema de carga.',
-    chips: ['Tableta 11"', 'Funda con soporte', 'Cargador', 'Lista para usar'],
     uso: [
       'Aula virtual del colegio o instituto (Classroom, Teams…)',
       'Tomar apuntes, leer y hacer trabajos sencillos',
@@ -994,7 +668,6 @@ const KITS = [
     price: '289,19', priceN: 289.19,
     perfil: 'El equilibrio: portátil de verdad para trabajos, clases online y ofimática.',
     device: 'Portátil profesional de 14" reacondicionado (tipo Lenovo ThinkPad L490, i5 8.ª gen, 8GB/256GB SSD) con ratón inalámbrico y mochila acolchada.',
-    chips: ['Portátil pro 14"', 'Ratón inalámbrico', 'Mochila acolchada', 'Listo para usar'],
     uso: [
       'Redactar trabajos y presentaciones con teclado de verdad',
       'Clases online con cámara y micro verificados',
@@ -1021,7 +694,6 @@ const KITS = [
     price: '446,49', priceN: 446.49,
     perfil: 'Para estudios exigentes: multitarea seria y software avanzado sin esperas.',
     device: 'Portátil profesional reacondicionado (tipo HP EliteBook 840, i5 10.ª gen o superior, 16GB/256GB) con ratón, auriculares y mochila.',
-    chips: ['Portátil pro 16GB', 'Ratón', 'Auriculares', 'Mochila'],
     uso: [
       'Universidad y FP técnica: programación, diseño, análisis de datos',
       'Software avanzado y muchas apps abiertas a la vez',
@@ -1054,14 +726,15 @@ function renderKits() {
     c.className = 'kcard rev';
     c.id = 'kit' + k.id;
     c.innerHTML = `
-      <div class="khead"><span>( ${k.num} )</span>${k.badge ? `<span class="kbadge">${k.badge}</span>` : ''}</div>
+      ${k.badge ? `<span class="kbadge">${k.badge}</span>` : ''}
       <div class="kico"><img src="${k.img}" alt="${k.num} · ${k.name}"></div>
+      <div class="klabel">${k.num}</div>
       <div class="kname">${k.name}</div>
       <p class="kperfil">${k.perfil}</p>
-      <div class="kprice">${k.price} €<small>IVA incluido</small></div>
+      <div class="kprice">${k.price} €<span> IVA incl.</span></div>
       <div class="kbtns">
-        <button class="kbtn" data-ficha="${k.id}">Detalles →</button>
         <button class="kbtn solid" data-add="${k.id}">Añadir</button>
+        <button class="kbtn" data-ficha="${k.id}">Más información ›</button>
       </div>`;
     grid.appendChild(c);
   });
@@ -1073,20 +746,18 @@ function openFicha(id) {
   const k = KITS.find(x => x.id === id);
   document.getElementById('kitModalBox').innerHTML = `
     <button class="mclose" data-close>×</button>
-    <p class="mtag">${k.num} — ficha en cristiano</p>
+    <p class="mtag">${k.num}</p>
     <h3 class="mtitle">Kit ${k.name}</h3>
-    <img class="mimg" src="${k.img}" alt="${k.num} · ${k.name}">
     <div class="mprice">${k.price} € <small>IVA incluido · sin costes ocultos</small></div>
+    <img class="mimg" src="${k.img}" alt="${k.num} · ${k.name}">
     <div class="msec uso"><h4>Para qué sirve</h4><ul>${k.uso.map(x=>`<li>${x}</li>`).join('')}</ul></div>
     <div class="msec inc"><h4>Qué incluye exactamente</h4><ul>${k.inc.map(x=>`<li>${x}</li>`).join('')}</ul></div>
-    <div class="msec lim"><h4>Qué NO esperar de él (honestamente)</h4><ul>${k.lim.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    <div class="msec lim"><h4>Qué no esperar de él (honestamente)</h4><ul>${k.lim.map(x=>`<li>${x}</li>`).join('')}</ul></div>
     <p class="mnote">El modelo indicado es una referencia del nivel técnico: el stock reacondicionado varía, pero el rendimiento y la preparación del kit son siempre los descritos.</p>
-    <div class="mtrust">
-      <span>🛡️ Garantía incluida</span><span>↩️ Devolución 30 días</span><span>🔒 Borrado certificado</span>
-    </div>
+    <div class="mtrust"><span>🛡️ Garantía incluida</span><span>↩️ Devolución 30 días</span><span>🔒 Borrado certificado</span></div>
     <div class="mbtns">
       <button class="kbtn" data-close>Volver</button>
-      <button class="kbtn solid" data-add="${k.id}" data-close>Añadir a la cesta →</button>
+      <button class="kbtn solid" data-add="${k.id}" data-close>Añadir a la cesta</button>
     </div>`;
   openModal(kitModal);
 }
@@ -1095,7 +766,7 @@ function openFicha(id) {
 function openModal(m) { m.classList.add('open'); document.body.style.overflow = 'hidden'; }
 function closeModals() {
   document.querySelectorAll('.modal.open').forEach(m => m.classList.remove('open'));
-  if (!document.body.classList.contains('home')) document.body.style.overflow = '';
+  document.body.style.overflow = '';
 }
 document.addEventListener('click', e => {
   if (e.target.closest('[data-close]')) closeModals();
@@ -1110,7 +781,7 @@ function addToCart(id) {
   cart.push(id);
   bagCount.textContent = cart.length;
   const k = KITS.find(x => x.id === id);
-  toast(`Kit ${k.name} añadido a la cesta ✦`);
+  toast(`Kit ${k.name} añadido a la cesta`);
 }
 function renderCart() {
   const box = document.getElementById('cartLines');
@@ -1121,20 +792,17 @@ function renderCart() {
     return `<div class="cart-line"><b>${k.num} · ${k.name}</b>
       <span><span class="cprice">${k.price} €</span><button class="cart-del" data-del="${i}" aria-label="Quitar">×</button></span></div>`;
   }).join('') + `
-    <div class="cart-total"><span style="color:var(--white)">Total (IVA incluido)</span><span>${total.toFixed(2).replace('.', ',')} €</span></div>`;
+    <div class="cart-total"><span>Total (IVA incluido)</span><span>${total.toFixed(2).replace('.', ',')} €</span></div>`;
 }
-document.getElementById('bagBtn').addEventListener('click', () => {
-  if (document.body.classList.contains('home')) { goMain('#kits'); setTimeout(() => { renderCart(); openModal(document.getElementById('cartModal')); }, 700); }
-  else { renderCart(); openModal(document.getElementById('cartModal')); }
-});
+document.getElementById('bagBtn').addEventListener('click', () => { renderCart(); openModal(document.getElementById('cartModal')); });
 document.addEventListener('click', e => {
   const del = e.target.closest('[data-del]');
   if (del) { cart.splice(+del.dataset.del, 1); bagCount.textContent = cart.length; renderCart(); }
 });
 document.getElementById('payBtn').addEventListener('click', () => {
-  if (!cart.length) { toast('La cesta está vacía 🙂'); return; }
+  if (!cart.length) { toast('La cesta está vacía'); return; }
   closeModals();
-  toast('Demo: aquí iría el checkout de Shopify (tarjeta y wallets) ✦');
+  toast('Demo: aquí iría el checkout de Shopify (tarjeta y wallets)');
 });
 
 /* ═══════════ TOAST ═══════════ */
@@ -1150,8 +818,7 @@ function toast(msg) {
 /* ═══════════ SELECTOR GUIADO ═══════════ */
 const QUESTIONS = [
   {
-    q: '¿Para qué se va a usar sobre todo?',
-    num: 'Pregunta 1 · Actividades',
+    q: '¿Para qué se va a usar sobre todo?', num: 'Pregunta 1 · Actividades',
     opts: [
       { emo:'📖', t:'Aula virtual, apuntes y contenidos', s:'Seguir las clases, leer, vídeos educativos', pts:[3,1,0], why:'Para aula virtual y contenidos no hace falta más equipo del necesario' },
       { emo:'📝', t:'Trabajos, clases online y ofimática', s:'Redactar, presentaciones, videollamadas', pts:[0,3,1], why:'Los trabajos y la ofimática piden teclado y pantalla de portátil' },
@@ -1159,8 +826,7 @@ const QUESTIONS = [
     ]
   },
   {
-    q: '¿Se moverá mucho el equipo?',
-    num: 'Pregunta 2 · Movilidad',
+    q: '¿Se moverá mucho el equipo?', num: 'Pregunta 2 · Movilidad',
     opts: [
       { emo:'🎒', t:'Va a todas partes, cada día', s:'Casa, clase, biblioteca, actividades…', pts:[3,1,0], why:'Cuanto más viaja, más se agradece un equipo ligero' },
       { emo:'🚪', t:'Entre casa y clase, sin más', s:'Uso mixto normal', pts:[1,3,1], why:'Para uso mixto, el portátil con mochila acolchada es el punto justo' },
@@ -1168,8 +834,7 @@ const QUESTIONS = [
     ]
   },
   {
-    q: '¿Cuánta caña se le va a dar?',
-    num: 'Pregunta 3 · Exigencia técnica',
+    q: '¿Cuánta caña se le va a dar?', num: 'Pregunta 3 · Exigencia técnica',
     opts: [
       { emo:'🌱', t:'Lo básico, sin florituras', s:'Nada de programas pesados', pts:[3,1,0], why:'Con uso básico, el Esencial cumple sin pagar de más' },
       { emo:'⚖️', t:'Uso normal de estudiante', s:'Ofimática, navegador con pestañas, videollamadas', pts:[1,3,1], why:'El uso estándar de estudiante es justo el terreno del Completo' },
@@ -1177,8 +842,7 @@ const QUESTIONS = [
     ]
   },
   {
-    q: '¿Qué presupuesto tienes en mente?',
-    num: 'Pregunta 4 · Presupuesto',
+    q: '¿Qué presupuesto tienes en mente?', num: 'Pregunta 4 · Presupuesto',
     opts: [
       { emo:'💶', t:'Hasta unos 250 €', s:'Lo más ajustado posible', pts:[3,0,-2], why:'Encaja en tu presupuesto: precio final con IVA, sin sorpresas' },
       { emo:'💳', t:'Entre 250 y 350 €', s:'Un término medio razonable', pts:[1,3,-1], why:'Entra de lleno en tu rango de precio, con IVA incluido' },
@@ -1216,7 +880,6 @@ function renderSelector() {
   if (back) back.addEventListener('click', () => {
     selStep--;
     const prev = QUESTIONS[selStep];
-    // deshacer la última respuesta
     const lastWhy = selReasons.pop();
     const lastOpt = prev.opts.find(o => o.why === lastWhy);
     if (lastOpt) selScores = selScores.map((s,i) => s - lastOpt.pts[i]);
@@ -1232,16 +895,15 @@ function renderResult() {
     <div class="sel-progress">${QUESTIONS.map(()=>'<i class="on"></i>').join('')}</div>
     <div class="sel-result">
       <p class="rtag">Tu kit es…</p>
-      <h3 class="rname">Kit ${k.name} <span style="color:var(--amber)">✦</span></h3>
-      <div class="rprice">${k.price} € <small>IVA incluido</small></div>
+      <h3 class="rname">Kit ${k.name}</h3>
+      <div class="rprice">${k.price} € · IVA incluido</div>
       <ul class="rwhy">${selReasons.map(r=>`<li>${r}</li>`).join('')}</ul>
       <div class="rbtns">
-        <button class="kbtn" style="flex:none; padding:14px 22px" data-ficha="${k.id}">Ver la ficha</button>
-        <button class="kbtn solid" style="flex:none; padding:14px 22px" id="goKit">Llévame al kit →</button>
-        <button class="kbtn" style="flex:none; padding:14px 22px" id="selRetry">Repetir test</button>
+        <button class="kbtn solid" id="goKit">Llévame al kit</button>
+        <button class="kbtn" data-ficha="${k.id}">Ver la ficha</button>
+        <button class="kbtn" id="selRetry">Repetir test</button>
       </div>
     </div>`;
-  // resaltar el kit recomendado
   document.querySelectorAll('.kcard').forEach(c => c.classList.remove('reco'));
   const card = document.getElementById('kit' + k.id);
   card.classList.add('reco');
@@ -1261,10 +923,7 @@ document.getElementById('b2bSend').addEventListener('click', () => {
   const ent = document.getElementById('f-ent').value.trim();
   const uds = document.getElementById('f-uds').value.trim();
   const mail = document.getElementById('f-mail').value.trim();
-  if (!ent || !uds || !mail || !mail.includes('@')) {
-    toast('Faltan datos: entidad, unidades y un email válido 🙂');
-    return;
-  }
+  if (!ent || !uds || !mail || !mail.includes('@')) { toast('Faltan datos: entidad, unidades y un email válido'); return; }
   document.getElementById('b2bFields').style.display = 'none';
   document.getElementById('b2bOk').classList.add('show');
 });
@@ -1272,53 +931,26 @@ document.getElementById('b2bSend').addEventListener('click', () => {
 /* ═══════════ APADRINA ═══════════ */
 document.getElementById('apaBtn').addEventListener('click', () => openModal(document.getElementById('apaModal')));
 
-/* ═══════════ NAVEGACIÓN HOME ⇄ MAIN ═══════════ */
-const wipe = document.getElementById('wipe');
-function goMain(target) {
-  wipe.classList.add('on');
-  setTimeout(() => {
-    document.body.classList.remove('home', 'locked');
-    document.body.style.overflow = '';
-    const html = document.documentElement;
-    html.style.scrollBehavior = 'auto';
-    const el = target ? document.querySelector(target) : null;
-    if (el) el.scrollIntoView({ behavior: 'auto', block: 'start' });
-    else window.scrollTo(0, 0);
-    requestAnimationFrame(() => {
-      html.style.scrollBehavior = '';
-      wipe.classList.remove('on');
-      revealObserve();
-    });
-  }, 520);
-}
-function goHome() {
-  wipe.classList.add('on');
-  setTimeout(() => {
-    const html = document.documentElement;
-    html.style.scrollBehavior = 'auto';
-    document.body.classList.add('home', 'locked');
-    window.scrollTo(0, 0);
-    requestAnimationFrame(() => { html.style.scrollBehavior = ''; });
-    wipe.classList.remove('on');
-  }, 520);
-}
+/* ═══════════ NAVEGACIÓN (scroll continuo) ═══════════ */
 document.addEventListener('click', e => {
   const go = e.target.closest('[data-go]');
   if (!go) return;
   e.preventDefault();
   closeBurger();
   const target = go.dataset.target || go.getAttribute('href');
-  if (document.body.classList.contains('home')) goMain(target);
-  else {
-    const el = document.querySelector(target);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  const el = document.querySelector(target);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 document.getElementById('logoHome').addEventListener('click', e => {
-  e.preventDefault();
-  if (!document.body.classList.contains('home')) goHome();
+  e.preventDefault(); closeBurger();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
-document.getElementById('shopHere').addEventListener('click', () => goMain('#kits'));
+document.getElementById('shopHere').addEventListener('click', () => {
+  document.getElementById('kits').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+document.querySelector('.scroll-hint').addEventListener('click', () => {
+  document.getElementById('kits').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
 
 /* ═══════════ BURGER ═══════════ */
 const burger = document.getElementById('burger');
@@ -1326,29 +958,30 @@ const mmenu  = document.getElementById('mmenu');
 burger.addEventListener('click', () => {
   const open = burger.classList.toggle('open');
   mmenu.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
 });
-function closeBurger() {
-  burger.classList.remove('open');
-  mmenu.classList.remove('open');
-}
+function closeBurger() { burger.classList.remove('open'); mmenu.classList.remove('open'); document.body.style.overflow = ''; }
 
-/* ═══════════ NAVBAR SCROLL ═══════════ */
-window.addEventListener('scroll', () => {
-  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40 && !document.body.classList.contains('home'));
-}, { passive: true });
+/* ═══════════ NAVBAR: claro al pasar la portada ═══════════ */
+const nav = document.getElementById('nav');
+const heroEl = document.getElementById('view-home');
+function onScroll() { nav.classList.toggle('scrolled', heroEl.getBoundingClientRect().bottom < 80); }
+window.addEventListener('scroll', onScroll, { passive: true });
+window.addEventListener('resize', onScroll);
+window.addEventListener('load', onScroll);
+onScroll();
 
 /* ═══════════ CTA LETRA A LETRA ═══════════ */
 const sh = document.getElementById('shopHere');
 sh.innerHTML = sh.textContent.trim().split('').map((c, i) =>
-  c === ' ' ? `<span class="sp"></span>`
-            : `<span class="ch" style="transition-delay:${i * 40}ms">${c}</span>`
+  c === ' ' ? `<span class="sp"></span>` : `<span class="ch" style="transition-delay:${i * 40}ms">${c}</span>`
 ).join('');
 
 /* ═══════════ VIDEO HERO: parallax + autoplay ═══════════ */
 const hv = document.getElementById('hero-video');
 if (matchMedia('(pointer: fine)').matches) {
   document.addEventListener('mousemove', e => {
-    if (!document.body.classList.contains('home')) return;
+    if (window.scrollY > window.innerHeight) return;
     const dx = (e.clientX / innerWidth  - .5) * 18;
     const dy = (e.clientY / innerHeight - .5) * 18;
     hv.style.transform = `translate(${dx}px, ${dy}px)`;
@@ -1357,9 +990,7 @@ if (matchMedia('(pointer: fine)').matches) {
 const tryPlay = () => hv.play().catch(() => {});
 tryPlay();
 window.addEventListener('load', tryPlay);
-['touchstart','click'].forEach(ev =>
-  document.addEventListener(ev, tryPlay, { once: true, passive: true })
-);
+['touchstart','click'].forEach(ev => document.addEventListener(ev, tryPlay, { once: true, passive: true }));
 
 /* ═══════════ SCROLL REVEAL ═══════════ */
 const observer = new IntersectionObserver(entries => {
@@ -1371,9 +1002,7 @@ const observer = new IntersectionObserver(entries => {
     }
   });
 }, { threshold: .1 });
-function revealObserve() {
-  document.querySelectorAll('.rev:not(.in)').forEach(el => observer.observe(el));
-}
+function revealObserve() { document.querySelectorAll('.rev:not(.in)').forEach(el => observer.observe(el)); }
 
 /* ═══════════ FICHAS / AÑADIR (delegado) ═══════════ */
 document.addEventListener('click', e => {
@@ -1383,9 +1012,10 @@ document.addEventListener('click', e => {
   if (a) addToCart(+a.dataset.add);
 });
 
-/* ═══════════ LOADER + INIT ═══════════ */
+/* ═══════════ INIT ═══════════ */
 renderKits();
 renderSelector();
+revealObserve();
 
 window.addEventListener('load', () => {
   setTimeout(() => {
