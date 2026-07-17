@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReVolt — Kits digitales educativos reacondicionados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -22,6 +25,10 @@
     --disp: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', 'Arial Black', sans-serif;
     --round: 'Arial Rounded MT Bold', 'Baloo 2', 'Verdana Pro Black', -apple-system, sans-serif;
     --body: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --dot:  'Doto', ui-monospace, monospace;
+    --mono: 'DM Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --paper2: #f4f3ef;
+    --ink2:   #111111;
   }
 
   html { scroll-behavior: smooth; }
@@ -250,76 +257,97 @@
   .kgrid { display: grid; grid-template-columns: 1fr; gap: 18px; }
   @media (min-width: 720px)  { .kgrid { grid-template-columns: repeat(3, 1fr); } }
 
+  /* ── KITS · estilo Nothing (banda clara) ── */
+  #kits {
+    max-width: none; padding-left: 0; padding-right: 0;
+    background: var(--paper2); color: var(--ink2);
+    background-image: radial-gradient(#d3d0c6 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+  .kits-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+  #kits .k-eyebrow {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .3em;
+    text-transform: uppercase; color: var(--ink2);
+  }
+  #kits .k-eyebrow i { width: 7px; height: 7px; background: var(--amber); border-radius: 50%; display: inline-block; }
+  #kits .k-title {
+    font-family: var(--dot); font-weight: 800; font-size: clamp(34px, 8vw, 62px);
+    letter-spacing: .05em; color: var(--ink2); line-height: .95; margin-bottom: 14px;
+  }
+  #kits .k-lead {
+    font-family: var(--body); font-size: 14.5px; color: #55524a;
+    max-width: 460px; line-height: 1.6; margin-bottom: 44px;
+  }
+
+  .kgrid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 720px)  { .kgrid { grid-template-columns: repeat(3, 1fr); } }
+
   .kcard {
-    background: var(--bg2); border: 1px solid var(--line); border-radius: 14px;
-    padding: 26px 22px 24px; position: relative; overflow: hidden;
+    background: #fff; border: 1px solid #e3e0d7; border-radius: 16px;
+    padding: 22px 20px; position: relative;
     display: flex; flex-direction: column;
-    transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+    transition: transform .35s ease, border-color .35s ease;
   }
-  .kcard:hover { transform: translateY(-5px); border-color: var(--blue); }
-  .kcard.reco {
-    border-color: var(--amber);
-    box-shadow: 0 0 0 1px var(--amber), 0 18px 50px rgba(232,150,12,.16);
+  .kcard:hover { transform: translateY(-4px); border-color: var(--ink2); }
+  .kcard.reco { border-color: var(--ink2); }
+  .kcard.reco::before {
+    content: 'RECOMENDADO';
+    position: absolute; top: -9px; left: 20px;
+    background: var(--ink2); color: #fff;
+    font-family: var(--mono); font-size: 8px; letter-spacing: .15em;
+    padding: 3px 10px; border-radius: 100px;
   }
-  .kcard.reco::after {
-    content: 'Recomendado ✦';
-    position: absolute; top: 22px; right: -38px; transform: rotate(42deg);
-    background: var(--amber); color: #221503;
-    font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
-    padding: 5px 48px;
+  .khead {
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--mono); font-size: 10px; letter-spacing: .15em;
+    color: #8a877e; margin-bottom: 8px;
   }
   .kbadge {
-    position: absolute; top: 16px; left: 22px;
-    background: var(--blue); color: var(--white);
-    font-size: 9px; font-weight: 700; letter-spacing: .14em;
-    text-transform: uppercase; padding: 4px 10px; border-radius: 3px;
+    font-family: var(--mono); font-size: 8px; letter-spacing: .12em;
+    color: #8a877e;
   }
   .kico {
-    height: 170px; margin: 26px 0 14px;
-    border-radius: 10px; overflow: hidden;
-    border: 1px solid var(--line); background: #fff;
+    height: 150px; margin: 8px 0 18px;
+    display: flex; align-items: center; justify-content: center;
   }
-  .kico img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 10px; }
-  .knum { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gray); margin-bottom: 4px; }
+  .kico img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
   .kname {
-    font-family: var(--disp); font-size: 26px; letter-spacing: .05em;
-    text-transform: uppercase; margin-bottom: 6px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink2); margin-bottom: 10px;
   }
-  .kperfil { font-size: 13px; color: var(--sky); margin-bottom: 14px; min-height: 40px; }
-  .kprice { font-family: var(--disp); font-size: 34px; letter-spacing: .02em; color: var(--white); }
-  .kprice small { font-size: 12px; font-family: var(--body); font-weight: 700; color: var(--amber); letter-spacing: .08em; text-transform: uppercase; margin-left: 8px; }
-  .kdevice { font-size: 12.5px; color: rgba(244,247,251,.6); margin: 10px 0 14px; line-height: 1.5; }
-  .kchips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
-  .kchip {
-    font-size: 10px; font-weight: 600; letter-spacing: .06em;
-    color: var(--sky); background: rgba(62,123,214,.14);
-    border: 1px solid rgba(62,123,214,.35);
-    padding: 4px 10px; border-radius: 100px;
-  }
-  .kbtns { margin-top: auto; display: flex; gap: 8px; }
+  .kperfil { font-family: var(--body); font-size: 13px; color: #55524a; line-height: 1.5; margin-bottom: 18px; min-height: 58px; }
+  .kprice { font-family: var(--dot); font-weight: 700; font-size: 30px; letter-spacing: .04em; color: var(--ink2); line-height: 1; }
+  .kprice small { display: block; font-size: 10px; font-family: var(--mono); font-weight: 400; color: #8a877e; letter-spacing: .06em; margin-top: 4px; }
+  .kdevice { display: none; }
+  .kchips { display: none; }
+  .kbtns { margin-top: 18px; padding-top: 16px; border-top: 1px solid #eceae3; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .kbtn {
-    flex: 1; font-family: var(--body); font-size: 11px; font-weight: 700;
-    letter-spacing: .12em; text-transform: uppercase;
-    padding: 12px 8px; border-radius: 6px; cursor: pointer;
-    border: 1px solid var(--line); background: none; color: var(--white);
-    transition: all .2s;
+    font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+    cursor: pointer; border: none; background: none; color: var(--ink2);
+    padding: 0; transition: opacity .2s;
   }
-  .kbtn:hover { border-color: var(--sky); background: rgba(156,195,240,.08); }
-  .kbtn.solid { background: var(--amber); border-color: var(--amber); color: #221503; }
-  .kbtn.solid:hover { background: #f7a821; }
+  .kbtn:hover { opacity: .55; }
+  .kbtn.solid {
+    background: var(--ink2); color: #fff;
+    padding: 11px 22px; border-radius: 100px; letter-spacing: .1em;
+    text-transform: uppercase; font-size: 10px;
+    transition: transform .2s, background .2s;
+  }
+  .kbtn.solid:hover { opacity: 1; transform: translateY(-1px); background: #000; }
 
-  .kits-cta { text-align: center; margin-top: 44px; }
-  .kits-cta p { font-size: 14px; color: rgba(244,247,251,.7); margin-bottom: 14px; }
+  .kits-cta { text-align: center; margin-top: 52px; }
+  .kits-cta p { font-family: var(--body); font-size: 14px; color: #55524a; margin-bottom: 14px; }
   .big-link {
-    display: inline-block; font-family: var(--disp);
-    font-size: clamp(20px, 4vw, 30px); letter-spacing: .06em; text-transform: uppercase;
-    color: var(--amber); text-decoration: none; background: none; border: none; cursor: pointer;
-    border-bottom: 2px solid rgba(232,150,12,.4); padding-bottom: 3px;
-    transition: border-color .2s, transform .25s ease;
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--mono); font-size: 13px; letter-spacing: .08em;
+    color: #fff; background: var(--ink2); text-decoration: none;
+    border: none; cursor: pointer; padding: 15px 28px; border-radius: 100px;
+    transition: transform .25s ease;
   }
-  .big-link:hover { border-color: var(--amber); transform: translateX(6px); }
+  .big-link:hover { transform: translateY(-2px); }
 
-  .iva-note { text-align: center; font-size: 11px; color: var(--gray); margin-top: 26px; letter-spacing: .04em; }
+  .iva-note { text-align: center; font-family: var(--mono); font-size: 10px; color: #8a877e; margin-top: 30px; letter-spacing: .06em; }
 
   /* ── SELECTOR ────────────────────────────── */
   #selector { border-top: 1px solid var(--line); max-width: none; padding-left: 0; padding-right: 0; background: var(--bg2); }
@@ -652,23 +680,22 @@
 
   <!-- ── KITS ── -->
   <section id="kits">
-    <div class="sec-head">
-      <h2 class="sec-title">Los kits</h2>
-      <span class="sec-count">— 3 kits. No hay más, no hacen falta más.</span>
-    </div>
-    <p class="sec-intro">
-      Cada kit es una <strong>solución completa</strong>: el dispositivo reacondicionado, sus accesorios
-      y toda la preparación (revisión, borrado seguro de datos, configuración inicial y garantía).
-      El precio que ves es el precio final, <strong>con IVA incluido</strong>.
-    </p>
+    <div class="kits-inner">
+      <div class="k-eyebrow rev"><i></i> Los kits</div>
+      <h2 class="k-title rev">3 KITS.</h2>
+      <p class="k-lead rev">
+        Solución cerrada: el dispositivo reacondicionado, sus accesorios y toda la preparación
+        (revisión, borrado seguro, configuración y garantía). El precio que ves es el final, con IVA.
+      </p>
 
-    <div class="kgrid" id="kgrid"></div>
+      <div class="kgrid" id="kgrid"></div>
 
-    <div class="kits-cta rev">
-      <p>¿No tienes claro cuál encaja con tu caso? No necesitas saber de tecnología.</p>
-      <button class="big-link" data-go data-target="#selector">Hazme el test de 1 minuto →</button>
+      <div class="kits-cta rev">
+        <p>¿No tienes claro cuál encaja contigo? No necesitas saber de tecnología.</p>
+        <button class="big-link" data-go data-target="#selector">Hazme el test de 1 min →</button>
+      </div>
+      <p class="iva-note rev">Modelos orientativos del nivel de cada kit · el stock reacondicionado varía, la calidad no</p>
     </div>
-    <p class="iva-note rev">Los modelos indicados son referencias del nivel técnico de cada kit — el stock reacondicionado varía, la calidad no.</p>
   </section>
 
   <!-- ── SELECTOR ── -->
@@ -1027,16 +1054,13 @@ function renderKits() {
     c.className = 'kcard rev';
     c.id = 'kit' + k.id;
     c.innerHTML = `
-      ${k.badge ? `<span class="kbadge">${k.badge}</span>` : ''}
+      <div class="khead"><span>( ${k.num} )</span>${k.badge ? `<span class="kbadge">${k.badge}</span>` : ''}</div>
       <div class="kico"><img src="${k.img}" alt="${k.num} · ${k.name}"></div>
-      <div class="knum">${k.num}</div>
       <div class="kname">${k.name}</div>
       <p class="kperfil">${k.perfil}</p>
       <div class="kprice">${k.price} €<small>IVA incluido</small></div>
-      <p class="kdevice">${k.device}</p>
-      <div class="kchips">${k.chips.map(ch => `<span class="kchip">${ch}</span>`).join('')}</div>
       <div class="kbtns">
-        <button class="kbtn" data-ficha="${k.id}">Ver ficha</button>
+        <button class="kbtn" data-ficha="${k.id}">Detalles →</button>
         <button class="kbtn solid" data-add="${k.id}">Añadir</button>
       </div>`;
     grid.appendChild(c);
