@@ -277,9 +277,9 @@
   .kico {
     height: 170px; margin: 26px 0 14px;
     border-radius: 10px; overflow: hidden;
-    border: 1px solid var(--line); background: #0b1626;
+    border: 1px solid var(--line); background: #fff;
   }
-  .kico img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .kico img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 10px; }
   .knum { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--gray); margin-bottom: 4px; }
   .kname {
     font-family: var(--disp); font-size: 26px; letter-spacing: .05em;
@@ -509,7 +509,7 @@
   }
   .mclose:hover { color: var(--white); }
   .mimg {
-    width: 100%; height: 200px; object-fit: cover; display: block;
+    width: 100%; height: 200px; object-fit: contain; display: block; background: #fff; padding: 10px;
     border-radius: 10px; border: 1px solid var(--line); margin-bottom: 18px;
   }
   .mtag { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--amber); margin-bottom: 6px; font-weight: 700; }
@@ -878,7 +878,7 @@
         <a href="mailto:hola@revolt.es">Contacto</a>
       </div>
       <div class="foot-copy">© 2026 ReVolt · Tecnología que vuelve al aula · Prototipo TFG<br>
-      <span style="opacity:.7">Fotos de producto: Wikimedia Commons — Galaxy Tab A9+ (CC0) · ThinkPad T490 © P2u111 (CC BY 4.0) · EliteBook 840 © Infinatious (CC BY-SA 4.0). Imágenes de referencia del nivel de gama.</span>
+      <span style="opacity:.7">Imágenes de producto orientativas: referencias del nivel de gama de cada kit (el stock reacondicionado varía).</span>
     </div>
     </div>
   </footer>
@@ -960,7 +960,7 @@ const KITS = [
       'Para escribir trabajos muy largos se agradece un teclado aparte',
       'No sirve para software técnico o pesado (diseño, programación…)'
     ],
-    img: 'img/kit1.jpg'
+    img: 'img/kit1.png'
   },
   {
     id: 2, name: 'Completo', num: 'Kit 2', badge: 'El más elegido',
@@ -987,7 +987,7 @@ const KITS = [
       'La batería es de equipo reacondicionado: correcta, no la de un ultrabook nuevo',
       'Chasis profesional: sobrio y resistente, no finito y de diseño'
     ],
-    img: 'img/kit2.jpg'
+    img: 'img/kit2.png'
   },
   {
     id: 3, name: 'Avanzado', num: 'Kit 3', badge: '',
@@ -1014,7 +1014,7 @@ const KITS = [
       'Para 3D o edición de vídeo profesional intensiva se puede quedar corto',
       'Signos leves de uso en la carcasa: por dentro, revisado a fondo'
     ],
-    img: 'img/kit3.jpg'
+    img: 'img/kit3.png'
   }
 ];
 
